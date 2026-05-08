@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "License Plate Road Trip",
+  "schemaVersion": 1,
+  "description": "Interactive, searchable license plate game for road trips. 258 plates across all 50 states + DC, with tap-to-spot, scoring by rarity, and per-state progress. Curated subset of jonkeegan/us-license-plates."
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>License Plate Road Trip</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#fafaf7;
+  --ink:#1b1d22;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --accent:#1d4ed8;
+  --good:#15803d;
+  --rare:#b45309;
+  --uncommon:#1d4ed8;
+  --common:#475569;
+  --card:#ffffff;
+  --shadow:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
+.bar{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em}
+h1 .em{color:var(--accent)}
+.score{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+.score small{color:var(--muted);font-weight:500}
+.progress{height:6px;background:#eef0f4}
+.progress > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s ease;width:0%}
+.controls{padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);background:#fff;align-items:center}
+.search{flex:1 1 220px;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff}
+.search:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
+select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink)}
+.chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
+main{padding:14px;max-width:1100px;margin:0 auto}
+.summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:13px;color:var(--muted)}
+.summary strong{color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.plate{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);transition:transform .08s ease, border-color .2s, background .2s;position:relative;min-height:120px;font:inherit;color:inherit}
+.plate:active{transform:scale(.98)}
+.plate .state{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.plate .title{font-weight:650;font-size:14px;line-height:1.3;color:var(--ink);flex:1}
+.plate .meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted)}
+.plate .rarity{font-weight:600}
+.plate .rarity.common{color:var(--common)}
+.plate .rarity.uncommon{color:var(--uncommon)}
+.plate .rarity.rare{color:var(--rare)}
+.plate.found{background:#ecfdf5;border-color:#86efac}
+.plate.found::after{content:"\2713";position:absolute;top:8px;right:10px;background:var(--good);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.plate.found .title{color:#065f46}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+footer{padding:24px 16px 60px;text-align:center;color:var(--muted);font-size:12px}
+@media (max-width: 480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.plate{min-height:108px;padding:10px}h1{font-size:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>&#128739;&#65039; License Plate <span class="em">Road Trip</span></h1>
+    <div class="score" id="score">0 <small>pts</small></div>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="controls">
+    <input class="search" id="q" placeholder="Search plates or states&hellip;" autocomplete="off">
+    <select id="state"><option value="">All states (51)</option></select>
+    <select id="cat">
+      <option value="">All categories</option>
+      <option value="s">Standard</option>
+      <option value="sc">Scenic</option>
+      <option value="u">University</option>
+      <option value="sp">Sports</option>
+      <option value="m">Military / Vet</option>
+      <option value="o">Organization</option>
+      <option value="e">Environmental</option>
+      <option value="x">Special</option>
+    </select>
+    <button class="chip" id="hide" type="button">Hide spotted</button>
+    <button class="reset" id="reset" type="button">Reset</button>
+  </div>
+</header>
+
+<main>
+  <div class="summary" id="summary"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>No plates match your filters.</div>
+</main>
+
+<footer>
+  MVP v1 &middot; <span id="total">0</span> plates &middot; curated subset of <strong>jonkeegan/us-license-plates</strong> (8,331 total). Tap a card to mark as spotted.
+</footer>
+
+<script>
+const STATE_NAMES = {
+  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",
+  CT:"Connecticut",DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",
+  HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",
+  LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",
+  MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",
+  NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",
+  OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",
+  SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",
+  WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"
+};
+
+const PLATES_RAW = `
+AL|Heart of Dixie|s|c
+AL|God Bless America|x|u
+AL|University of Alabama|u|c
+AL|Auburn University|u|c
+AL|Disabled Veteran|m|u
+AL|Helping Schools|x|c
+AL|Forever Wild|e|r
+AK|The Last Frontier (Big Dipper)|s|c
+AK|Veteran|m|u
+AK|Bear|sc|u
+AK|Iditarod|x|r
+AK|Celebrating Children|o|r
+AZ|Grand Canyon State|s|c
+AZ|Veterans|m|u
+AZ|Wildlife Conservation|e|c
+AZ|Arizona Cardinals|sp|u
+AZ|Diamondbacks|sp|u
+AZ|Arizona State Sun Devils|u|c
+AZ|U of A Wildcats|u|c
+AR|The Natural State|s|c
+AR|Razorbacks|u|c
+AR|Veteran|m|u
+AR|Cancer Awareness|o|u
+AR|Boy Scouts|o|r
+CA|California (white standard)|s|c
+CA|Yosemite|sc|c
+CA|Coastal Whale Tail|e|c
+CA|Kids Plate|o|u
+CA|Disabled Veteran|m|u
+CA|Memorial|x|r
+CA|Sesquicentennial|x|r
+CO|Mountains (standard)|s|c
+CO|Pioneer (legacy)|x|r
+CO|Disabled Veteran|m|u
+CO|Greyhound Adoption|o|r
+CO|Adopt a Shelter Pet|o|c
+CT|Long Island Sound|s|c
+CT|Greenways|e|u
+CT|Firefighter|o|u
+CT|UConn Huskies|u|c
+CT|Yale|u|r
+DE|The First State|s|c
+DE|Disabled Veteran|m|u
+DE|Volunteer Fireman|o|r
+DE|Black Plate (legacy)|x|r
+DC|Taxation Without Representation|s|c
+DC|Inaugural|x|r
+DC|Veterans|m|u
+FL|Sunshine State (oranges)|s|c
+FL|Save the Manatee|e|c
+FL|Endless Summer|sc|u
+FL|Florida Gators|u|c
+FL|Florida State Seminoles|u|c
+FL|Disabled Veteran|m|u
+FL|In God We Trust|x|c
+GA|Peach (standard)|s|c
+GA|Wildlife|e|c
+GA|Veteran|m|u
+GA|UGA Bulldogs|u|c
+GA|GT Yellow Jackets|u|u
+HI|Rainbow|s|c
+HI|Aloha State (legacy)|x|r
+HI|Disabled Veteran|m|u
+HI|Hawaiian|x|r
+ID|Famous Potatoes|s|c
+ID|Scenic Idaho|sc|c
+ID|Veteran|m|u
+ID|Boise State Broncos|u|u
+ID|Wildlife|e|c
+IL|Land of Lincoln|s|c
+IL|Environmental|e|c
+IL|Veteran|m|u
+IL|Cubs|sp|c
+IL|White Sox|sp|u
+IL|Bears|sp|u
+IL|POW|m|r
+IN|In God We Trust|s|c
+IN|Crossroads of America|s|c
+IN|Veteran|m|u
+IN|IU Hoosiers|u|c
+IN|Purdue Boilermakers|u|u
+IA|City/County (standard)|s|c
+IA|Iowa Hawkeyes|u|c
+IA|Iowa State Cyclones|u|c
+IA|Veteran|m|u
+IA|Pheasants Forever|o|r
+KS|Sunflower (standard)|s|c
+KS|Veteran|m|u
+KS|Wildlife|e|c
+KS|Kansas Jayhawks|u|c
+KS|K-State Wildcats|u|c
+KY|Bluegrass (standard)|s|c
+KY|Kentucky Wildcats|u|c
+KY|Louisville Cardinals|u|c
+KY|Veteran|m|u
+KY|Horse Council|o|c
+LA|Sportsman's Paradise|s|c
+LA|LSU Tigers|u|c
+LA|Saints|sp|u
+LA|Pelican State|sc|c
+LA|Veteran|m|u
+ME|Vacationland Chickadee|s|c
+ME|Lobster|sc|u
+ME|Black Bear|u|u
+ME|Veteran|m|u
+ME|Loon|e|r
+MD|War of 1812 (standard)|s|c
+MD|Chesapeake Bay|e|c
+MD|Veteran|m|u
+MD|Maryland Terrapins|u|u
+MD|Baltimore Ravens|sp|c
+MA|Spirit of America|s|c
+MA|Cape Cod & Islands|sc|c
+MA|Veteran|m|u
+MA|Red Sox|sp|c
+MA|Patriots|sp|c
+MA|Bruins|sp|u
+MI|Pure Michigan|s|c
+MI|Mackinac Bridge|sc|c
+MI|Veteran|m|u
+MI|Spartans|u|c
+MI|Wolverines|u|c
+MI|Lighthouse|e|u
+MN|10,000 Lakes|s|c
+MN|Critical Habitat (Loon)|e|c
+MN|Veteran|m|u
+MN|Vikings|sp|u
+MN|Wild|sp|u
+MS|Magnolia|s|c
+MS|Veteran|m|u
+MS|Ole Miss|u|c
+MS|Mississippi State|u|c
+MS|Wildlife|e|c
+MO|Show-Me State|s|c
+MO|Mizzou Tigers|u|c
+MO|Veteran|m|u
+MO|Cardinals|sp|c
+MO|Royals|sp|u
+MT|Big Sky|s|c
+MT|Glacier National Park|sc|u
+MT|Veteran|m|u
+MT|Montana State Bobcats|u|r
+MT|Montana Grizzlies|u|r
+NE|Sandhill Cranes|s|c
+NE|Cornhuskers|u|c
+NE|Veteran|m|u
+NE|Wildlife|e|r
+NV|Silver State|s|c
+NV|Lake Tahoe|sc|c
+NV|Las Vegas|x|u
+NV|Battle Born|x|c
+NV|Veteran|m|u
+NH|Live Free or Die|s|c
+NH|Old Man of the Mountain|x|c
+NH|Conservation Moose|e|c
+NH|Veteran|m|u
+NJ|Garden State|s|c
+NJ|Shore to Please|sc|c
+NJ|Veteran|m|u
+NJ|Animal Friendly|o|u
+NM|Land of Enchantment (yellow)|s|c
+NM|Turquoise|s|c
+NM|Veteran|m|u
+NM|Centennial|x|r
+NM|Chile Capital|x|u
+NY|Empire State (gold)|s|c
+NY|I Love NY|x|u
+NY|Yankees|sp|c
+NY|Mets|sp|u
+NY|Statue of Liberty|x|c
+NY|Veteran|m|u
+NC|First in Flight|s|c
+NC|First in Freedom|s|c
+NC|Veteran|m|u
+NC|Tar Heels|u|c
+NC|NC State Wolfpack|u|c
+ND|Peace Garden State|s|c
+ND|Veteran|m|u
+ND|Pheasants|e|r
+OH|Birthplace of Aviation|s|c
+OH|Veteran|m|u
+OH|Buckeyes|u|c
+OH|Browns|sp|u
+OH|Bengals|sp|u
+OK|Native America|s|c
+OK|Sooners|u|c
+OK|OSU Cowboys|u|c
+OK|Veteran|m|u
+OK|Centennial|x|r
+OR|Tree (Salmon/Trout)|s|c
+OR|Crater Lake|sc|u
+OR|Cultural Trust|o|u
+OR|Veteran|m|u
+PA|Keystone (standard)|s|c
+PA|Flagship Niagara|x|r
+PA|Veteran|m|u
+PA|Steelers|sp|c
+PA|Eagles|sp|c
+PA|Penn State Nittany Lions|u|c
+RI|Wave (standard)|s|c
+RI|Veteran|m|u
+RI|Plum Beach Lighthouse|sc|r
+SC|In God We Trust Palmetto|s|c
+SC|SC Wildlife|e|c
+SC|Veteran|m|u
+SC|Gamecocks|u|c
+SC|Clemson Tigers|u|c
+SD|Mount Rushmore|s|c
+SD|Centennial Black Hills|x|r
+SD|Veteran|m|u
+SD|Pheasant|sc|c
+TN|Volunteer State (Tristar)|s|c
+TN|Smoky Mountains|sc|c
+TN|Veteran|m|u
+TN|Tennessee Vols|u|c
+TN|Titans|sp|u
+TX|Lone Star (standard)|s|c
+TX|Texas Classic Black/White|s|c
+TX|God Bless Texas|x|c
+TX|Don't Mess With Texas|x|u
+TX|Longhorns|u|c
+TX|Texas A&M Aggies|u|c
+TX|Veteran|m|u
+TX|State Parks|e|c
+UT|The Beehive State|s|c
+UT|Mighty 5 / Arches|sc|c
+UT|Veteran|m|u
+UT|Utes|u|c
+UT|BYU Cougars|u|c
+UT|Ski Utah|x|u
+VT|Green Mountain|s|c
+VT|Conservation|e|c
+VT|Veteran|m|u
+VT|Vermont Strong|x|r
+VA|Standard|s|c
+VA|Friends of Tibet|o|r
+VA|Veteran|m|u
+VA|Virginia Tech Hokies|u|c
+VA|UVA Cavaliers|u|c
+VA|Chesapeake Bay|e|c
+WA|Mt. Rainier (standard)|s|c
+WA|State Parks|e|c
+WA|Veteran|m|u
+WA|Huskies|u|c
+WA|Cougars|u|c
+WA|Orca|e|u
+WV|Wild Wonderful|s|c
+WV|Veteran|m|u
+WV|WV Mountaineers|u|c
+WV|Coal Country|x|r
+WI|America's Dairyland|s|c
+WI|Veteran|m|u
+WI|Wisconsin Badgers|u|c
+WI|Packers|sp|u
+WI|Brewers|sp|u
+WY|Bucking Horse|s|c
+WY|Veteran|m|u
+WY|Yellowstone|sc|r
+`.trim();
+
+const CAT = {s:"Standard",sc:"Scenic",u:"University",sp:"Sports",m:"Military",o:"Organization",e:"Environmental",x:"Special"};
+const RAR = {c:"Common",u:"Uncommon",r:"Rare"};
+const PTS = {c:1,u:3,r:10};
+const RAR_LONG = {c:"common",u:"uncommon",r:"rare"};
+
+const PLATES = PLATES_RAW.split("\n").map((row,i)=>{
+  const [state,title,cat,rar] = row.split("|");
+  return {id:i, state, title, cat, rar};
+});
+
+const STORE_KEY = "lpgame.found.v1";
+let found;
+try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || "[]")); }
+catch(e){ found = new Set(); }
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }catch(e){} }
+
+const $q = document.getElementById("q");
+const $state = document.getElementById("state");
+const $cat = document.getElementById("cat");
+const $hide = document.getElementById("hide");
+const $reset = document.getElementById("reset");
+const $grid = document.getElementById("grid");
+const $score = document.getElementById("score");
+const $bar = document.getElementById("bar");
+const $summary = document.getElementById("summary");
+const $empty = document.getElementById("empty");
+document.getElementById("total").textContent = PLATES.length;
+
+const stateCounts = {};
+PLATES.forEach(p => { stateCounts[p.state] = (stateCounts[p.state]||0)+1; });
+Object.entries(STATE_NAMES).sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code,name])=>{
+  const opt = document.createElement("option");
+  opt.value = code;
+  opt.textContent = name + " (" + (stateCounts[code]||0) + ")";
+  $state.appendChild(opt);
+});
+
+let hideSpotted = false;
+$hide.addEventListener("click", ()=>{
+  hideSpotted = !hideSpotted;
+  $hide.classList.toggle("active", hideSpotted);
+  $hide.textContent = hideSpotted ? "Show spotted" : "Hide spotted";
+  render();
+});
+$q.addEventListener("input", render);
+$state.addEventListener("change", render);
+$cat.addEventListener("change", render);
+$reset.addEventListener("click", ()=>{
+  if(confirm("Reset all spotted plates? This can't be undone.")){
+    found.clear(); persist(); render();
+  }
+});
+
+function pointsTotal(){
+  let s = 0;
+  for(const id of found){
+    const p = PLATES[id]; if(!p) continue;
+    s += PTS[p.rar] || 1;
+  }
+  return s;
+}
+function statesProgress(){
+  const byState = {};
+  PLATES.forEach(p => {
+    byState[p.state] = byState[p.state] || {total:0, found:0};
+    byState[p.state].total++;
+    if(found.has(p.id)) byState[p.state].found++;
+  });
+  let any = 0, full = 0;
+  for(const k of Object.keys(byState)){
+    if(byState[k].found > 0) any++;
+    if(byState[k].found === byState[k].total) full++;
+  }
+  return {any, full};
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+function render(){
+  const q = $q.value.trim().toLowerCase();
+  const stateF = $state.value;
+  const catF = $cat.value;
+  const filtered = PLATES.filter(p=>{
+    if(stateF && p.state !== stateF) return false;
+    if(catF && p.cat !== catF) return false;
+    if(hideSpotted && found.has(p.id)) return false;
+    if(q){
+      const hay = (p.title + " " + p.state + " " + (STATE_NAMES[p.state]||"") + " " + (CAT[p.cat]||"")).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  $empty.hidden = filtered.length > 0;
+
+  const pts = pointsTotal();
+  const sp = statesProgress();
+  $score.innerHTML = pts + " <small>pts</small>";
+  const pct = (found.size / PLATES.length) * 100;
+  $bar.style.width = pct.toFixed(1) + "%";
+  $summary.innerHTML =
+    "<span><strong>" + found.size + "</strong> / " + PLATES.length + " spotted (" + pct.toFixed(1) + "%)</span>" +
+    "<span>&middot;</span>" +
+    "<span><strong>" + sp.any + "</strong> states started &middot; <strong>" + sp.full + "</strong> completed</span>" +
+    "<span>&middot;</span>" +
+    "<span>Showing <strong>" + filtered.length + "</strong></span>";
+
+  $grid.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  filtered.forEach(p=>{
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "plate" + (found.has(p.id) ? " found":"");
+    el.dataset.id = p.id;
+    el.innerHTML =
+      '<div class="state">' + escapeHtml(STATE_NAMES[p.state] || p.state) + ' &middot; ' + escapeHtml(p.state) + '</div>' +
+      '<div class="title">' + escapeHtml(p.title) + '</div>' +
+      '<div class="meta"><span>' + escapeHtml(CAT[p.cat] || "Other") + '</span>' +
+      '<span class="rarity ' + RAR_LONG[p.rar] + '">' + escapeHtml(RAR[p.rar]) + ' &middot; ' + PTS[p.rar] + 'pt' + (PTS[p.rar]>1?'s':'') + '</span></div>';
+    el.addEventListener("click", ()=>{
+      if(found.has(p.id)) found.delete(p.id);
+      else found.add(p.id);
+      persist();
+      render();
+    });
+    frag.appendChild(el);
+  });
+  $grid.appendChild(frag);
+}
+
+render();
+</script>
+</body>
+</html>
