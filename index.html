@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="auto">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -18,12 +18,46 @@
   --ink:#1b1d22;
   --muted:#6b7280;
   --line:#e5e7eb;
+  --line-soft:#f1f5f9;
   --accent:#1d4ed8;
   --accent-soft:#eff6ff;
   --good:#15803d;
   --good-soft:#ecfdf5;
   --card:#ffffff;
+  --tile:#f1f5f9;
   --shadow:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0b0e14;
+  --ink:#e5e7eb;
+  --muted:#9ca3af;
+  --line:#1f2937;
+  --line-soft:#111827;
+  --accent:#60a5fa;
+  --accent-soft:#172554;
+  --good:#10b981;
+  --good-soft:#064e3b;
+  --card:#111827;
+  --tile:#1f2937;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root[data-theme="auto"]{
+    color-scheme: dark;
+    --bg:#0b0e14;
+    --ink:#e5e7eb;
+    --muted:#9ca3af;
+    --line:#1f2937;
+    --line-soft:#111827;
+    --accent:#60a5fa;
+    --accent-soft:#172554;
+    --good:#10b981;
+    --good-soft:#064e3b;
+    --card:#111827;
+    --tile:#1f2937;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.5);
+  }
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,51 +67,50 @@ body{
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
-header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line)}
 .bar{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 h1{margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em}
 h1 .em{color:var(--accent)}
+.bar-actions{display:flex;align-items:center;gap:6px}
 .score{font-variant-numeric:tabular-nums;font-weight:700}
 .score small{color:var(--muted);font-weight:500}
-.progress{height:6px;background:#eef0f4}
+.icon-btn{
+  background:none;border:1px solid transparent;padding:6px 8px;font-size:18px;line-height:1;
+  cursor:pointer;color:var(--muted);border-radius:8px;-webkit-appearance:none;
+}
+.icon-btn:hover, .icon-btn:focus-visible{background:var(--tile);color:var(--ink);outline:none}
+.progress{height:6px;background:var(--line-soft)}
 .progress > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s ease;width:0%}
-.tabs{display:flex;border-bottom:1px solid var(--line);background:#fff}
-.tab{flex:1;background:none;border:none;padding:11px 6px;font:600 13px/1 inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;-webkit-appearance:none;letter-spacing:-.005em}
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--card)}
+.tab{flex:1;background:none;border:none;padding:11px 6px;font:600 13px/1 inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;-webkit-appearance:none;letter-spacing:-.005em;display:flex;align-items:center;justify-content:center;gap:6px}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab .pill{display:inline-block;background:#eef2ff;color:var(--accent);font-size:11px;padding:2px 7px;border-radius:999px;margin-left:4px;font-weight:700;vertical-align:1px}
-.controls{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);background:#fff;align-items:center}
-.search{flex:1 1 220px;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;-webkit-appearance:none}
+.tab .pill{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11px;padding:2px 7px;border-radius:999px;margin-left:4px;font-weight:700;vertical-align:1px}
+.tab .tab-icon{display:none}
+.controls{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);background:var(--card);align-items:center}
+.search{flex:1 1 220px;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--card);color:var(--ink);-webkit-appearance:none}
 .search:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
-select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);max-width:48%}
-.chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
-.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:var(--card);color:var(--ink);max-width:48%}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
+.chip.active{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .chip.clear{color:var(--muted)}
 
-.color-row{display:flex;gap:6px;padding:6px 14px 8px;border-bottom:1px solid var(--line);background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:center}
+.color-row{display:flex;gap:6px;padding:6px 14px 8px;border-bottom:1px solid var(--line);background:var(--card);overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:center}
 .color-row::-webkit-scrollbar{height:0}
 .cdot{
-  border:2px solid transparent;background:#fff;
+  border:2px solid transparent;background:var(--card);
   width:30px;height:30px;border-radius:50%;flex-shrink:0;cursor:pointer;padding:0;
   position:relative;-webkit-appearance:none;
 }
-.cdot::after{
-  content:"";position:absolute;inset:3px;border-radius:50%;background:var(--c, transparent);
-  border:1px solid rgba(0,0,0,.08);
-}
+.cdot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--c, transparent);border:1px solid rgba(0,0,0,.08)}
 .cdot.active{border-color:var(--ink)}
 .cdot.all{width:auto;height:30px;border-radius:15px;padding:0 12px;font:600 12px/1 inherit;color:var(--ink)}
 .cdot.all::after{display:none}
-.cdot.scan{
-  width:auto;height:30px;border-radius:15px;padding:0 10px;font:600 11px/1 inherit;color:var(--muted);
-  background:#f9fafb;margin-left:auto;flex-shrink:0;
-}
-.cdot.scan::after{display:none}
 
 main{padding:12px;max-width:1200px;margin:0 auto}
 
 .map-wrap{margin-bottom:10px}
 .map-summary{
-  cursor:pointer;padding:8px 12px;background:#fff;border:1px solid var(--line);
+  cursor:pointer;padding:8px 12px;background:var(--card);border:1px solid var(--line);
   border-radius:10px;font:600 13px/1 inherit;color:var(--ink);
   display:flex;align-items:center;gap:6px;list-style:none;
   -webkit-appearance:none;width:100%;text-align:left;
@@ -87,7 +120,7 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 details[open] .map-summary::before{transform:rotate(90deg)}
 .us-map{display:grid;grid-template-columns:repeat(12, minmax(0, 1fr));gap:3px;padding:10px 4px;max-width:520px;margin:0 auto}
 .us-tile{
-  aspect-ratio:1;border:none;border-radius:4px;background:#f1f5f9;color:#94a3b8;
+  aspect-ratio:1;border:none;border-radius:4px;background:var(--tile);color:var(--muted);
   font:700 9px/1 ui-monospace,Menlo,monospace;cursor:pointer;padding:0;-webkit-appearance:none;
   display:flex;align-items:center;justify-content:center;transition:background .15s,box-shadow .15s;
 }
@@ -96,6 +129,8 @@ details[open] .map-summary::before{transform:rotate(90deg)}
 .us-tile.complete{background:#10b981;color:#fff}
 .us-tile.in-trip{box-shadow:inset 0 0 0 2px #f59e0b}
 .us-tile.selected{box-shadow:inset 0 0 0 2px var(--ink)}
+:root[data-theme="dark"] .us-tile.has-some{background:#1e3a8a;color:#bfdbfe}
+@media (prefers-color-scheme: dark){:root[data-theme="auto"] .us-tile.has-some{background:#1e3a8a;color:#bfdbfe}}
 .map-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--muted);padding:0 8px 4px}
 .map-legend span{display:inline-flex;align-items:center;gap:4px}
 .map-legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
@@ -104,6 +139,7 @@ details[open] .map-summary::before{transform:rotate(90deg)}
 .summary strong{color:var(--ink)}
 .loading{padding:40px 16px;text-align:center;color:var(--muted)}
 .loading.error{color:#991b1b;text-align:left;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;font-size:14px;line-height:1.5}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .plate{
   background:var(--card);border:1px solid var(--line);border-radius:12px;
@@ -112,22 +148,25 @@ details[open] .map-summary::before{transform:rotate(90deg)}
   position:relative;overflow:hidden;font:inherit;color:inherit;
 }
 .plate:active{transform:scale(.98)}
-.plate-img{aspect-ratio:2/1;background:#f3f4f6;position:relative;overflow:hidden}
+.plate-img{aspect-ratio:2/1;background:var(--tile);position:relative;overflow:hidden}
 .plate-img img{width:100%;height:100%;object-fit:cover;display:block}
-.plate-img.fallback::before{
-  content:attr(data-state);position:absolute;top:6px;left:8px;
-  font:600 10px/1 monospace;color:#94a3b8;letter-spacing:.1em;
-}
-.plate-img.fallback::after{
-  content:attr(data-title);position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font:600 12px/1.2 -apple-system,sans-serif;color:#1f2937;text-align:center;padding:0 10px;
-}
+.plate-img.fallback::before{content:attr(data-state);position:absolute;top:6px;left:8px;font:600 10px/1 monospace;color:#94a3b8;letter-spacing:.1em}
+.plate-img.fallback::after{content:attr(data-title);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:600 12px/1.2 -apple-system,sans-serif;color:var(--ink);text-align:center;padding:0 10px}
 .color-dot{
   position:absolute;top:6px;left:6px;width:11px;height:11px;border-radius:50%;
   box-shadow:0 0 0 1px rgba(255,255,255,.85), 0 0 0 2px rgba(0,0,0,.18);
   background:#cbd5e1;z-index:2;transition:background .2s;
 }
+.plate-info-btn{
+  position:absolute;bottom:6px;right:6px;z-index:3;
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,.92);color:#374151;
+  border:1px solid rgba(0,0,0,.08);
+  font:700 11px/1 serif;cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-appearance:none;opacity:.85;
+}
+.plate-info-btn:hover, .plate-info-btn:focus{opacity:1;outline:none}
 .plate-meta{padding:8px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
 .plate-meta .state{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .plate-meta .title{font-weight:600;font-size:13px;line-height:1.25;color:var(--ink)}
@@ -138,6 +177,18 @@ details[open] .map-summary::before{transform:rotate(90deg)}
   display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;z-index:2;
 }
 .plate.found .title{color:#065f46}
+:root[data-theme="dark"] .plate.found .title{color:#86efac}
+@media (prefers-color-scheme: dark){:root[data-theme="auto"] .plate.found .title{color:#86efac}}
+
+/* List view */
+.grid.view-list{grid-template-columns:1fr;gap:6px}
+.grid.view-list .plate{flex-direction:row;min-height:auto}
+.grid.view-list .plate-img{width:96px;min-width:96px;flex-shrink:0;aspect-ratio:2/1}
+.grid.view-list .plate-meta{padding:8px 12px;justify-content:center}
+.grid.view-list .plate-info-btn{position:static;margin-left:auto;align-self:center;margin-right:10px}
+.grid.view-list .plate{align-items:stretch}
+.grid.view-list .plate.found .plate-img::after{top:4px;right:4px;width:18px;height:18px;font-size:11px}
+
 .empty{padding:30px;text-align:center;color:var(--muted)}
 #sentinel{height:1px}
 
@@ -154,41 +205,48 @@ details[open] .map-summary::before{transform:rotate(90deg)}
 .trips-view{display:flex;flex-direction:column;gap:14px}
 .trip-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
 .trip-card.active{background:var(--accent-soft);border-color:#bfdbfe}
-.trip-card h2{margin:0 0 8px;font-size:15px;letter-spacing:-.005em}
+:root[data-theme="dark"] .trip-card.active{border-color:#1e40af}
+@media (prefers-color-scheme: dark){:root[data-theme="auto"] .trip-card.active{border-color:#1e40af}}
+.trip-card h2{margin:0 0 8px;font-size:15px;letter-spacing:-.005em;color:var(--ink)}
 .trip-card .label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
 .trip-card label{display:block;font-size:12px;color:var(--muted);margin-top:10px;margin-bottom:4px;font-weight:600}
 .trip-card input[type=text], .trip-card textarea{
-  width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:#fff;
+  width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--card);color:var(--ink);
   -webkit-appearance:none;
 }
 .trip-card input[type=text]:focus, .trip-card textarea:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
 .trip-card textarea{resize:vertical;min-height:60px}
 .trip-card .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin-top:6px}
 .trip-card .row strong{color:var(--ink)}
-.btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:10px;font:600 14px/1 inherit;cursor:pointer;-webkit-appearance:none}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:10px;font:600 14px/1 inherit;cursor:pointer;-webkit-appearance:none;text-decoration:none;text-align:center}
 .btn:active{opacity:.85}
 .btn.danger{background:#b91c1c}
-.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.full{width:100%;display:block}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .state-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.state-pill{background:#fff;border:1px solid var(--line);color:var(--ink);font:600 11px/1 monospace;padding:4px 7px;border-radius:6px;letter-spacing:.05em}
+.state-pill{background:var(--card);border:1px solid var(--line);color:var(--ink);font:600 11px/1 monospace;padding:4px 7px;border-radius:6px;letter-spacing:.05em}
 .state-pill.in-trip{background:#dcfce7;border-color:#86efac;color:#065f46}
+:root[data-theme="dark"] .state-pill.in-trip{background:#064e3b;border-color:#10b981;color:#86efac}
+@media (prefers-color-scheme: dark){:root[data-theme="auto"] .state-pill.in-trip{background:#064e3b;border-color:#10b981;color:#86efac}}
 .log-trip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
-.log-trip h3{margin:0 0 4px;font-size:14px}
+.log-trip h3{margin:0 0 4px;font-size:14px;color:var(--ink)}
 .log-trip .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
 .log-trip .meta strong{color:var(--ink)}
 .log-trip .toggle{background:none;border:none;color:var(--accent);font:600 12px/1 inherit;cursor:pointer;padding:6px 0;margin-top:4px}
 .log-trip .delete{background:none;border:none;color:var(--muted);font:600 12px/1 inherit;cursor:pointer;padding:6px 0;margin-top:4px;float:right}
 .log-trip .delete:hover{color:#b91c1c}
 .log-trip .details{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--ink)}
-.log-trip .details .notes{white-space:pre-wrap;margin-top:8px;padding:8px 10px;background:#f9fafb;border-radius:8px;color:var(--ink);font-size:13px}
+.log-trip .details .notes{white-space:pre-wrap;margin-top:8px;padding:8px 10px;background:var(--tile);border-radius:8px;color:var(--ink);font-size:13px}
 .log-empty{padding:24px 14px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
 
 .stats-view{display:flex;flex-direction:column;gap:14px}
 .stats-hero{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:14px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+:root[data-theme="dark"] .stats-hero{border-color:#1e40af}
+@media (prefers-color-scheme: dark){:root[data-theme="auto"] .stats-hero{border-color:#1e40af}}
 .stats-hero .num{font-size:42px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stats-hero .sub{color:var(--muted);font-size:13px;margin-top:4px}
-.stats-hero .barwrap{height:8px;background:#dbeafe;border-radius:999px;margin-top:12px;overflow:hidden}
+.stats-hero .barwrap{height:8px;background:rgba(29,78,216,.18);border-radius:999px;margin-top:12px;overflow:hidden}
 .stats-hero .barwrap > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
@@ -201,7 +259,7 @@ details[open] .map-summary::before{transform:rotate(90deg)}
 .record strong{color:var(--ink);font-weight:700}
 .bar-row{display:grid;grid-template-columns:1fr 110px 60px;gap:8px;align-items:center;font-size:12px;padding:5px 0}
 .bar-row .bar-label{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-row .bar-fill{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden;position:relative}
+.bar-row .bar-fill{height:8px;background:var(--tile);border-radius:999px;overflow:hidden;position:relative}
 .bar-row .bar-fill > span{display:block;height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);border-radius:999px}
 .bar-row .bar-val{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .color-bars{display:flex;flex-direction:column;gap:4px}
@@ -212,16 +270,74 @@ details[open] .map-summary::before{transform:rotate(90deg)}
 .cbar-val{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .stats-empty{padding:24px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
 
+/* Toasts */
+.toasts{position:fixed;left:0;right:0;bottom:16px;padding:0 14px;z-index:1200;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{
+  background:#1b1d22;color:#fff;padding:10px 16px;border-radius:999px;
+  font:600 13px/1.3 inherit;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;
+  max-width:90%;pointer-events:auto;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.celebrate{background:linear-gradient(90deg,#10b981,#06b6d4);font-size:14px;padding:12px 22px}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;padding:14px}
+.modal[hidden]{display:none}
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.modal-card{position:relative;background:var(--card);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.modal-img-wrap{aspect-ratio:2/1;background:#0b0e14;border-radius:16px 16px 0 0;overflow:hidden}
+.modal-img-wrap img{width:100%;height:100%;object-fit:contain;display:block}
+.modal-body{padding:16px 18px}
+.modal-state{font:600 11px/1 monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.modal-title{margin:0 0 14px;font-size:18px;font-weight:700;color:var(--ink)}
+.modal-close{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,.6);color:#fff;font-size:22px;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.modal-close:hover{background:rgba(0,0,0,.8)}
+
+/* Settings sheet */
+.sheet{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
+.sheet-card{position:relative;background:var(--card);border-top-left-radius:16px;border-top-right-radius:16px;max-height:85vh;width:100%;max-width:520px;overflow:auto;box-shadow:0 -8px 24px rgba(0,0,0,.15);padding-bottom:env(safe-area-inset-bottom)}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card)}
+.sheet-header h2{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+.sheet-body{padding:14px 18px 24px;display:flex;flex-direction:column;gap:18px}
+.setting-label{font:600 12px/1 inherit;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.setting-hint{color:var(--muted);font-size:12px;margin-top:6px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg-btn{flex:1;background:none;border:none;padding:9px 8px;font:600 13px/1 inherit;color:var(--ink);cursor:pointer;-webkit-appearance:none}
+.seg-btn.active{background:var(--accent);color:#fff}
+.btn-stack{display:flex;flex-direction:column;gap:8px}
+
 footer{padding:24px 16px 60px;text-align:center;color:var(--muted);font-size:12px}
 footer a{color:var(--accent)}
-@media (max-width: 480px){
+
+@media (max-width: 600px){
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .grid.view-list{grid-template-columns:1fr}
   h1{font-size:15px}
   .controls{padding:6px 10px}
   main{padding:10px}
   .trip-banner{padding:9px 12px;font-size:13px}
   .stats-hero .num{font-size:36px}
   .stat strong{font-size:20px}
+  /* Bottom tab bar on mobile */
+  .tabs{
+    position:fixed;bottom:0;left:0;right:0;z-index:100;
+    border-top:1px solid var(--line);border-bottom:none;
+    padding-bottom:env(safe-area-inset-bottom);
+    background:var(--card);
+  }
+  .tab{flex-direction:column;gap:2px;padding:8px 4px 6px}
+  .tab .tab-icon{display:block;font-size:20px;line-height:1}
+  .tab .tab-label{font-size:10px;font-weight:600}
+  body{padding-bottom: calc(60px + env(safe-area-inset-bottom))}
+  .toasts{bottom: calc(76px + env(safe-area-inset-bottom))}
+  .sheet{align-items:flex-end}
+}
+@media (min-width: 601px){
+  .sheet{align-items:center}
+  .sheet-card{border-radius:16px;max-height:80vh;max-width:480px}
 }
 </style>
 </head>
@@ -229,13 +345,16 @@ footer a{color:var(--accent)}
 <header>
   <div class="bar">
     <h1>&#128739;&#65039; License Plate <span class="em">Road Trip</span></h1>
-    <div class="score" id="score">0 <small>spotted</small></div>
+    <div class="bar-actions">
+      <div class="score" id="score">0 <small>spotted</small></div>
+      <button class="icon-btn" id="btn-settings" type="button" aria-label="Settings" title="Settings">&#9881;</button>
+    </div>
   </div>
   <div class="progress"><div id="bar"></div></div>
-  <nav class="tabs" role="tablist">
-    <button class="tab active" id="tab-plates" type="button" role="tab">Plates</button>
-    <button class="tab" id="tab-trips" type="button" role="tab">Trips<span class="pill" id="trips-pill" hidden>0</span></button>
-    <button class="tab" id="tab-stats" type="button" role="tab">Stats</button>
+  <nav class="tabs" id="nav-tabs" role="tablist">
+    <button class="tab active" id="tab-plates" type="button" role="tab"><span class="tab-icon">&#128663;</span><span class="tab-label">Plates</span></button>
+    <button class="tab" id="tab-trips" type="button" role="tab"><span class="tab-icon">&#128506;&#65039;</span><span class="tab-label">Trips<span class="pill" id="trips-pill" hidden>0</span></span></button>
+    <button class="tab" id="tab-stats" type="button" role="tab"><span class="tab-icon">&#128202;</span><span class="tab-label">Stats</span></button>
   </nav>
   <div class="controls" id="plates-controls">
     <input class="search" id="q" placeholder="Search plates or states&hellip;" autocomplete="off" inputmode="search">
@@ -251,11 +370,11 @@ footer a{color:var(--accent)}
       <option value="color">By color</option>
       <option value="title">By title</option>
     </select>
+    <button class="chip" id="view-toggle" type="button" aria-label="Toggle view">&#9776;</button>
     <button class="chip clear" id="clear" type="button">Clear filters</button>
   </div>
   <div class="color-row" id="color-row">
     <button class="cdot all active" data-color="" type="button">All</button>
-    <button class="cdot scan" id="scan-btn" type="button" title="Scan all plates so the color filter is complete">Scan all</button>
   </div>
 </header>
 
@@ -274,7 +393,7 @@ footer a{color:var(--accent)}
         <span><i style="background:#dbeafe"></i>Some</span>
         <span><i style="background:#60a5fa"></i>Most</span>
         <span><i style="background:#10b981"></i>Complete</span>
-        <span><i style="box-shadow:inset 0 0 0 2px #f59e0b;background:#fff"></i>In trip</span>
+        <span><i style="box-shadow:inset 0 0 0 2px #f59e0b;background:transparent"></i>In trip</span>
       </div>
     </details>
     <div class="loading" id="loading">Loading plates&hellip;</div>
@@ -287,7 +406,7 @@ footer a{color:var(--accent)}
   <section id="view-trips" class="trips-view" hidden>
     <div id="trip-active-card"></div>
     <div>
-      <div class="label" style="padding:0 4px 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700">Past trips <span id="log-count">(0)</span></div>
+      <div style="padding:0 4px 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700">Past trips <span id="log-count">(0)</span></div>
       <div id="trip-log"></div>
     </div>
   </section>
@@ -300,6 +419,60 @@ footer a{color:var(--accent)}
   <span id="total">0</span> plates loaded &middot;
   <span id="color-progress">0</span> colors scanned
 </footer>
+
+<!-- Toasts -->
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Plate detail modal -->
+<div class="modal" id="plate-modal" hidden role="dialog" aria-modal="true" aria-labelledby="plate-modal-title">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-close aria-label="Close">&times;</button>
+    <div class="modal-img-wrap"><img id="plate-modal-img" alt=""></div>
+    <div class="modal-body">
+      <div class="modal-state" id="plate-modal-state"></div>
+      <h2 class="modal-title" id="plate-modal-title"></h2>
+      <div class="btn-row">
+        <button class="btn" id="plate-modal-spot" type="button">Mark as spotted</button>
+        <a class="btn ghost" id="plate-modal-source" target="_blank" rel="noopener">View source &#8599;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings sheet -->
+<div class="sheet" id="settings-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="sheet-backdrop" data-close></div>
+  <div class="sheet-card">
+    <div class="sheet-header">
+      <h2 id="settings-title">Settings</h2>
+      <button class="icon-btn" data-close aria-label="Close" style="font-size:22px">&times;</button>
+    </div>
+    <div class="sheet-body">
+      <div>
+        <div class="setting-label">Theme</div>
+        <div class="seg" id="theme-seg">
+          <button class="seg-btn" data-theme="auto" type="button">Auto</button>
+          <button class="seg-btn" data-theme="light" type="button">Light</button>
+          <button class="seg-btn" data-theme="dark" type="button">Dark</button>
+        </div>
+      </div>
+      <div>
+        <div class="setting-label">Color scan</div>
+        <button class="btn ghost full" id="settings-scan" type="button">Scan all plates&hellip;</button>
+        <div class="setting-hint" id="settings-scan-hint"></div>
+      </div>
+      <div>
+        <div class="setting-label">Backup</div>
+        <div class="btn-stack">
+          <button class="btn ghost full" id="settings-export" type="button">Export progress (JSON)</button>
+          <button class="btn ghost full" id="settings-import" type="button">Import progress&hellip;</button>
+        </div>
+        <div class="setting-hint">Save your spotted plates, trips, and color cache to a file you can restore later or move to another device.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 "use strict";
@@ -352,6 +525,8 @@ const FOUND_KEY = "lpgame.found.v2";
 const TRIPS_KEY = "lpgame.trips.v1";
 const COLORS_KEY = "lpgame.colors.v1";
 const FIRST_KEY = "lpgame.firstSpot.v1";
+const THEME_KEY = "lpgame.theme.v1";
+const VIEW_KEY = "lpgame.view.v1";
 let found;
 let activeTrip = null;
 let tripLog = [];
@@ -360,6 +535,8 @@ let colorMap = {};
 let colorMapDirty = false;
 let activeColorFilter = "";
 let showMode = "all";
+let viewMode = "grid";
+let modalPlate = null;
 
 try { found = new Set(JSON.parse(localStorage.getItem(FOUND_KEY) || "[]")); }
 catch(e){ found = new Set(); }
@@ -407,8 +584,23 @@ const $tripBanner = $("trip-banner"), $tripBannerName = $("trip-banner-name");
 const $tripBannerCount = $("trip-banner-count"), $tripBannerEnd = $("trip-banner-end");
 const $tripActiveCard = $("trip-active-card"), $tripLog = $("trip-log");
 const $logCount = $("log-count"), $tripsPill = $("trips-pill");
-const $scanBtn = $("scan-btn"), $usMap = $("us-map");
-const $mapStatesCount = $("map-states-count"), $mapDetails = $("map-details");
+const $usMap = $("us-map");
+const $mapStatesCount = $("map-states-count");
+const $viewToggle = $("view-toggle");
+const $btnSettings = $("btn-settings");
+const $settingsSheet = $("settings-sheet");
+const $settingsScanBtn = $("settings-scan");
+const $settingsScanHint = $("settings-scan-hint");
+const $settingsExport = $("settings-export");
+const $settingsImport = $("settings-import");
+const $themeSeg = $("theme-seg");
+const $plateModal = $("plate-modal");
+const $modalImg = $("plate-modal-img");
+const $modalState = $("plate-modal-state");
+const $modalTitle = $("plate-modal-title");
+const $modalSpot = $("plate-modal-spot");
+const $modalSource = $("plate-modal-source");
+const $toasts = $("toasts");
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 
@@ -505,10 +697,44 @@ function applyCachedColor(p){
   if(p.img && colorMap[p.img]){
     p.color = colorMap[p.img].color;
     p.hue = colorMap[p.img].hue;
+  } else {
+    delete p.color; delete p.hue;
   }
 }
 
+/* Theme */
+function loadTheme(){
+  let t = "auto";
+  try { t = localStorage.getItem(THEME_KEY) || "auto"; } catch(e){}
+  if(!["auto","light","dark"].includes(t)) t = "auto";
+  document.documentElement.dataset.theme = t;
+  $themeSeg.querySelectorAll(".seg-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.theme === t);
+  });
+}
+function setTheme(t){
+  try { localStorage.setItem(THEME_KEY, t); } catch(e){}
+  loadTheme();
+}
+
+/* View mode */
+function loadViewMode(){
+  try { viewMode = localStorage.getItem(VIEW_KEY) || "grid"; } catch(e){ viewMode = "grid"; }
+  if(!["grid","list"].includes(viewMode)) viewMode = "grid";
+  $grid.classList.toggle("view-list", viewMode === "list");
+  $viewToggle.innerHTML = viewMode === "list" ? "&#9783;" : "&#9776;";
+  $viewToggle.title = viewMode === "list" ? "Switch to grid view" : "Switch to list view";
+  $viewToggle.setAttribute("aria-label", viewMode === "list" ? "Switch to grid view" : "Switch to list view");
+}
+function toggleViewMode(){
+  viewMode = viewMode === "list" ? "grid" : "list";
+  try { localStorage.setItem(VIEW_KEY, viewMode); } catch(e){}
+  loadViewMode();
+}
+
 async function init(){
+  loadTheme();
+  loadViewMode();
   try {
     const res = await fetch("./us-license-plates.csv", {cache: "force-cache"});
     if(!res.ok) throw new Error("HTTP " + res.status + " loading CSV");
@@ -519,11 +745,20 @@ async function init(){
     const sIdx = header.indexOf("state");
     const tIdx = header.indexOf("plate_title");
     const iIdx = header.indexOf("plate_img");
+    const srcImgIdx = header.indexOf("source_img");
+    const srcPageIdx = header.indexOf("source");
     if(sIdx < 0 || tIdx < 0) throw new Error("Unexpected CSV columns: " + header.join(","));
     PLATES = rows.slice(1)
       .filter(r => r[sIdx] && r[tIdx])
       .map((r, i) => {
-        const p = { id: i, state: r[sIdx].trim(), title: r[tIdx].trim(), img: (r[iIdx] || "").trim() };
+        const p = {
+          id: i,
+          state: r[sIdx].trim(),
+          title: r[tIdx].trim(),
+          img: (r[iIdx] || "").trim(),
+          srcImg: srcImgIdx >= 0 ? (r[srcImgIdx] || "").trim() : "",
+          srcPage: srcPageIdx >= 0 ? (r[srcPageIdx] || "").trim() : ""
+        };
         applyCachedColor(p);
         return p;
       });
@@ -565,7 +800,6 @@ function populateStates(){
 }
 
 function buildColorChips(){
-  const scanBtn = $scanBtn;
   COLOR_ORDER.forEach(c => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -578,18 +812,16 @@ function buildColorChips(){
       updateColorActiveStates();
       applyFilters();
     });
-    $colorRow.insertBefore(btn, scanBtn);
+    $colorRow.appendChild(btn);
   });
   $colorRow.querySelector(".cdot.all").addEventListener("click", () => {
     activeColorFilter = "";
     updateColorActiveStates();
     applyFilters();
   });
-  $scanBtn.addEventListener("click", scanAllColors);
 }
 function updateColorActiveStates(){
   $colorRow.querySelectorAll(".cdot").forEach(b => {
-    if(b.classList.contains("scan")) return;
     const c = b.dataset.color || "";
     b.classList.toggle("active", c === activeColorFilter);
   });
@@ -681,9 +913,8 @@ function buildCard(p){
   el.innerHTML =
     '<div class="plate-img" data-state="' + escapeHtml(p.state) + '" data-title="' + escapeHtml(p.title) + '">' +
       '<span class="color-dot" style="background:' + dotColor + '"></span>' +
-      (imgSrc
-        ? '<img loading="lazy" decoding="async" alt="" src="' + escapeHtml(imgSrc) + '">'
-        : '') +
+      (imgSrc ? '<img loading="lazy" decoding="async" alt="" src="' + escapeHtml(imgSrc) + '">' : '') +
+      '<button class="plate-info-btn" type="button" aria-label="Plate detail" title="Detail">i</button>' +
     '</div>' +
     '<div class="plate-meta">' +
       '<div class="state">' + escapeHtml(p.state) + ' &middot; ' + escapeHtml(stateLong) + '</div>' +
@@ -714,6 +945,15 @@ function buildCard(p){
     }
   }
 
+  // Info button opens detail modal
+  const infoBtn = el.querySelector(".plate-info-btn");
+  if(infoBtn){
+    infoBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      openPlateModal(p);
+    });
+  }
+
   el.addEventListener("click", () => onPlateTap(p, el));
   return el;
 }
@@ -731,11 +971,162 @@ function onPlateTap(p, el){
       if(!$viewTrips.hidden) renderTripsTab();
     }
     recordFirstSpotIfNeeded();
+    // Toast: state-completion celebration or +1
+    const breakdown = statesBreakdown();
+    const stateInfo = breakdown[p.state];
+    if(stateInfo && stateInfo.found === stateInfo.total){
+      showToast("✨ All " + stateInfo.total + " " + (STATE_NAMES[p.state]||p.state) + " plates spotted!", {celebrate:true});
+    } else {
+      showToast("+1 · " + (STATE_NAMES[p.state] || p.state), {});
+    }
   }
   persist();
   el.classList.toggle("found", found.has(p.id));
   updateSummary();
   renderMap();
+  // If modal currently shows this plate, update its button
+  if(modalPlate && modalPlate.id === p.id) updateModalSpotBtn();
+}
+
+function showToast(text, opts){
+  opts = opts || {};
+  const t = document.createElement("div");
+  t.className = "toast" + (opts.celebrate ? " celebrate" : "");
+  t.textContent = text;
+  $toasts.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add("show")));
+  const dur = opts.celebrate ? 2400 : 1400;
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => t.remove(), 300);
+  }, dur);
+}
+
+/* Plate modal */
+function openPlateModal(p){
+  modalPlate = p;
+  const stateLong = STATE_NAMES[p.state] || p.state;
+  const imgSrc = p.img ? "./plates/" + encodeURIComponent(p.state) + "/" + encodeURI(p.img) : "";
+  $modalImg.src = imgSrc;
+  $modalImg.alt = p.state + " " + p.title;
+  $modalState.textContent = p.state + " · " + stateLong;
+  $modalTitle.textContent = p.title;
+  if(p.srcPage){
+    $modalSource.href = p.srcPage;
+    $modalSource.style.display = "";
+  } else {
+    $modalSource.style.display = "none";
+  }
+  updateModalSpotBtn();
+  $plateModal.hidden = false;
+}
+function closePlateModal(){
+  $plateModal.hidden = true;
+  modalPlate = null;
+}
+function updateModalSpotBtn(){
+  if(!modalPlate) return;
+  const isFound = found.has(modalPlate.id);
+  $modalSpot.textContent = isFound ? "Remove from spotted" : "Mark as spotted";
+  $modalSpot.classList.toggle("danger", isFound);
+}
+$plateModal.addEventListener("click", e => {
+  if(e.target.matches("[data-close]")) closePlateModal();
+});
+$modalSpot.addEventListener("click", () => {
+  if(!modalPlate) return;
+  // Find existing card in DOM (if rendered)
+  const card = $grid.querySelector('[data-id="' + modalPlate.id + '"]');
+  if(card) onPlateTap(modalPlate, card);
+  else {
+    // Plate not in current view (filtered out) — apply directly
+    const wasFound = found.has(modalPlate.id);
+    if(wasFound) found.delete(modalPlate.id);
+    else {
+      found.add(modalPlate.id);
+      if(activeTrip && !activeTrip.platesAdded.includes(modalPlate.id)){
+        activeTrip.platesAdded.push(modalPlate.id);
+        saveTrips(); renderTripBanner();
+      }
+      recordFirstSpotIfNeeded();
+      showToast("+1 · " + (STATE_NAMES[modalPlate.state] || modalPlate.state), {});
+    }
+    persist(); updateSummary(); renderMap();
+  }
+  updateModalSpotBtn();
+});
+
+/* Settings sheet */
+function openSettings(){
+  $settingsScanHint.textContent = (Object.keys(colorMap).length).toLocaleString() + " / " + PLATES.length.toLocaleString() + " colors scanned";
+  $settingsSheet.hidden = false;
+}
+function closeSettings(){ $settingsSheet.hidden = true; }
+$btnSettings.addEventListener("click", openSettings);
+$settingsSheet.addEventListener("click", e => {
+  if(e.target.matches("[data-close]")) closeSettings();
+});
+$themeSeg.querySelectorAll(".seg-btn").forEach(b => {
+  b.addEventListener("click", () => setTheme(b.dataset.theme));
+});
+$settingsScanBtn.addEventListener("click", () => { closeSettings(); scanAllColors(); });
+$settingsExport.addEventListener("click", exportProgress);
+$settingsImport.addEventListener("click", importProgress);
+
+/* Export / Import */
+function exportProgress(){
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    found: [...found],
+    trips: { activeTrip, log: tripLog },
+    colors: colorMap,
+    firstSpot: getFirstSpotDate()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const stamp = new Date().toISOString().slice(0,10);
+  a.download = "license-plate-progress-" + stamp + ".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+  showToast("Exported progress");
+}
+function importProgress(){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json,application/json";
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if(!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!data || typeof data !== "object") throw new Error("Invalid backup file");
+      if(!confirm("Replace your current progress with this backup? Your existing data will be overwritten.")) return;
+      if(Array.isArray(data.found)) found = new Set(data.found);
+      if(data.trips && typeof data.trips === "object"){
+        activeTrip = data.trips.activeTrip || null;
+        tripLog = Array.isArray(data.trips.log) ? data.trips.log : [];
+      }
+      if(data.colors && typeof data.colors === "object"){ colorMap = data.colors; colorMapDirty = true; }
+      if(data.firstSpot){ try { localStorage.setItem(FIRST_KEY, data.firstSpot); } catch(e){} }
+      persist(); saveTrips(); persistColors();
+      PLATES.forEach(applyCachedColor);
+      applyFilters();
+      renderMap();
+      renderTripBanner();
+      renderTripsTab();
+      updateTripsPill();
+      updateColorProgress();
+      closeSettings();
+      showToast("Progress restored from backup", {celebrate:true});
+    } catch(e){
+      alert("Couldn't import: " + e.message);
+    }
+  };
+  input.click();
 }
 
 function updateSummary(){
@@ -755,9 +1146,14 @@ function updateSummary(){
 function updateColorProgress(){
   const n = Object.keys(colorMap).length;
   $colorProgress.textContent = n.toLocaleString();
-  if(n >= PLATES.length && PLATES.length > 0){
-    $scanBtn.textContent = "All scanned";
-    $scanBtn.disabled = true;
+  if($settingsScanBtn){
+    if(n >= PLATES.length && PLATES.length > 0){
+      $settingsScanBtn.textContent = "All plates scanned";
+      $settingsScanBtn.disabled = true;
+    } else {
+      $settingsScanBtn.textContent = "Scan all plates…";
+      $settingsScanBtn.disabled = false;
+    }
   }
 }
 
@@ -777,16 +1173,12 @@ async function scanAllColors(){
   if(todo.length === 0){ updateColorProgress(); return; }
   if(!confirm("Scan " + todo.length + " plate image" + (todo.length===1?"":"s") + " in the background to fill the color filter? Uses ~" + Math.ceil(todo.length*0.012) + " MB of data.")) return;
   scanInFlight = true;
-  $scanBtn.textContent = "Scanning 0/" + todo.length;
-  $scanBtn.disabled = true;
+  showToast("Scanning colors…");
   const CONCURRENT = 6;
   let done = 0, idx = 0;
   await new Promise(resolve => {
     function next(){
-      if(idx >= todo.length){
-        if(done >= todo.length) resolve();
-        return;
-      }
+      if(idx >= todo.length){ if(done >= todo.length) resolve(); return; }
       const p = todo[idx++];
       const img = new Image();
       img.decoding = "async";
@@ -799,10 +1191,7 @@ async function scanAllColors(){
           p.hue = result.hue;
         }
         done++;
-        if(done % 25 === 0 || done === todo.length){
-          $scanBtn.textContent = "Scanning " + done + "/" + todo.length;
-          queueColorPersist();
-        }
+        if(done % 50 === 0 || done === todo.length){ queueColorPersist(); }
         if(done === todo.length){ resolve(); return; }
         next();
       };
@@ -815,6 +1204,7 @@ async function scanAllColors(){
   persistColors();
   updateColorProgress();
   applyFilters();
+  showToast("Done scanning " + todo.length + " plates", {celebrate:true});
 }
 
 function renderMap(){
@@ -994,9 +1384,7 @@ function renderLogTrip(t){
         '<span>' + escapeHtml(fmtRange(t.started, t.ended)) + '</span>' +
       '</div>' +
       '<button class="toggle" id="toggle-' + t.id + '" type="button">' + (expanded ? "Hide details" : "Show details") + '</button>' +
-      (expanded
-        ? '<div class="details">' + stateList + notesHtml + '</div>'
-        : '') +
+      (expanded ? '<div class="details">' + stateList + notesHtml + '</div>' : '') +
     '</div>'
   );
 }
@@ -1013,6 +1401,7 @@ function startTrip(name, notes){
   renderTripBanner();
   renderTripsTab();
   renderMap();
+  showToast("Trip started · " + activeTrip.name);
 }
 function endTrip(){
   if(!activeTrip) return;
@@ -1024,8 +1413,10 @@ function endTrip(){
     states: states, plateCount: activeTrip.platesAdded.length
   };
   tripLog.unshift(completed);
+  const tripName = activeTrip.name;
   activeTrip = null;
   saveTrips(); updateTripsPill(); renderTripBanner(); renderTripsTab(); renderMap();
+  showToast("Saved \"" + tripName + "\" · " + states.length + "/51", {celebrate:true});
 }
 function cancelTrip(){
   if(!activeTrip) return;
@@ -1160,10 +1551,19 @@ $state.addEventListener("change", () => { applyFilters(); renderMap(); });
 $show.addEventListener("change", () => { showMode = $show.value; applyFilters(); });
 $sort.addEventListener("change", applyFilters);
 $clear.addEventListener("click", clearAllFilters);
+$viewToggle.addEventListener("click", toggleViewMode);
 $tabPlates.addEventListener("click", () => showTab("plates"));
 $tabTrips.addEventListener("click", () => showTab("trips"));
 $tabStats.addEventListener("click", () => showTab("stats"));
 $tripBannerEnd.addEventListener("click", () => { showTab("trips"); });
+
+// Esc closes any open overlay
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){
+    if(!$plateModal.hidden) closePlateModal();
+    else if(!$settingsSheet.hidden) closeSettings();
+  }
+});
 
 window.addEventListener("beforeunload", persistColors);
 init();
