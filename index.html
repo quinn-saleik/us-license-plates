@@ -22,7 +22,6 @@
   --accent-soft:#eff6ff;
   --good:#15803d;
   --good-soft:#ecfdf5;
-  --warn:#b45309;
   --card:#ffffff;
   --shadow:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
 }
@@ -52,6 +51,27 @@ h1 .em{color:var(--accent)}
 select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);max-width:50%}
 .chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
 .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.color-row{display:flex;gap:6px;padding:6px 14px 8px;border-bottom:1px solid var(--line);background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:center}
+.color-row::-webkit-scrollbar{height:0}
+.cdot{
+  border:2px solid transparent;background:#fff;
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;cursor:pointer;padding:0;
+  position:relative;-webkit-appearance:none;
+}
+.cdot::after{
+  content:"";position:absolute;inset:3px;border-radius:50%;background:var(--c, transparent);
+  border:1px solid rgba(0,0,0,.08);
+}
+.cdot.active{border-color:var(--ink)}
+.cdot.all{width:auto;height:30px;border-radius:15px;padding:0 12px;font:600 12px/1 inherit;color:var(--ink)}
+.cdot.all::after{display:none}
+.cdot.scan{
+  width:auto;height:30px;border-radius:15px;padding:0 10px;font:600 11px/1 inherit;color:var(--muted);
+  background:#f9fafb;margin-left:auto;flex-shrink:0;
+}
+.cdot.scan::after{display:none}
+
 main{padding:12px;max-width:1200px;margin:0 auto}
 .summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--muted)}
 .summary strong{color:var(--ink)}
@@ -79,6 +99,11 @@ main{padding:12px;max-width:1200px;margin:0 auto}
   content:attr(data-title);
   font:600 12px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;color:#1f2937;
   text-align:center;padding:0 10px;
+}
+.color-dot{
+  position:absolute;top:6px;left:6px;width:11px;height:11px;border-radius:50%;
+  box-shadow:0 0 0 1px rgba(255,255,255,.85), 0 0 0 2px rgba(0,0,0,.18);
+  background:#cbd5e1;z-index:2;transition:background .2s;
 }
 .plate-meta{padding:8px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
 .plate-meta .state{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -166,7 +191,17 @@ footer a{color:var(--accent)}
   <div class="controls" id="plates-controls">
     <input class="search" id="q" placeholder="Search plates or states&hellip;" autocomplete="off" inputmode="search">
     <select id="state"><option value="">All states</option></select>
+    <select id="sort">
+      <option value="default">Sort: Default</option>
+      <option value="state">By state</option>
+      <option value="color">By color</option>
+      <option value="title">By title</option>
+    </select>
     <button class="chip" id="hide" type="button">Hide spotted</button>
+  </div>
+  <div class="color-row" id="color-row">
+    <button class="cdot all active" data-color="" type="button">All</button>
+    <button class="cdot scan" id="scan-btn" type="button" title="Scan all plates so the color filter is complete">Scan all</button>
   </div>
 </header>
 
@@ -196,7 +231,7 @@ footer a{color:var(--accent)}
 <footer>
   Data &amp; images: <a href="https://github.com/jonkeegan/us-license-plates" target="_blank" rel="noopener">jonkeegan/us-license-plates</a> &middot;
   <span id="total">0</span> plates loaded &middot;
-  Tap a plate to mark spotted. Progress saved on this device.
+  <span id="color-progress">0</span> colors scanned
 </footer>
 
 <script>
@@ -215,6 +250,21 @@ const STATE_NAMES = {
 };
 const STATE_CODES = Object.keys(STATE_NAMES);
 
+const COLOR_HEX = {
+  red:"#ef4444", orange:"#f97316", yellow:"#eab308",
+  green:"#16a34a", cyan:"#06b6d4", blue:"#2563eb",
+  purple:"#9333ea", pink:"#ec4899",
+  white:"#f3f4f6", black:"#1f2937"
+};
+const COLOR_LABELS = {
+  red:"Red", orange:"Orange", yellow:"Yellow",
+  green:"Green", cyan:"Cyan", blue:"Blue",
+  purple:"Purple", pink:"Pink",
+  white:"White", black:"Black"
+};
+const COLOR_ORDER = ["red","orange","yellow","green","cyan","blue","purple","pink","white","black"];
+const COLOR_RANK = {red:0, orange:1, yellow:2, green:3, cyan:4, blue:5, purple:6, pink:7, white:8, black:9};
+
 let PLATES = [];
 let filteredCache = [];
 let renderedCount = 0;
@@ -222,10 +272,14 @@ const BATCH = 200;
 
 const FOUND_KEY = "lpgame.found.v2";
 const TRIPS_KEY = "lpgame.trips.v1";
+const COLORS_KEY = "lpgame.colors.v1";
 let found;
 let activeTrip = null;
 let tripLog = [];
 let expandedTrip = null;
+let colorMap = {};
+let colorMapDirty = false;
+let activeColorFilter = "";
 
 try { found = new Set(JSON.parse(localStorage.getItem(FOUND_KEY) || "[]")); }
 catch(e){ found = new Set(); }
@@ -240,18 +294,31 @@ function saveTrips(){
   try { localStorage.setItem(TRIPS_KEY, JSON.stringify({activeTrip, log: tripLog})); } catch(e){}
 }
 
+try { colorMap = JSON.parse(localStorage.getItem(COLORS_KEY) || "{}"); }
+catch(e){ colorMap = {}; }
+let colorPersistTimer = null;
+function persistColors(){
+  if(!colorMapDirty) return;
+  try { localStorage.setItem(COLORS_KEY, JSON.stringify(colorMap)); colorMapDirty = false; } catch(e){}
+}
+function queueColorPersist(){
+  if(colorPersistTimer) return;
+  colorPersistTimer = setTimeout(() => { colorPersistTimer = null; persistColors(); updateColorProgress(); }, 1500);
+}
+
 const $ = id => document.getElementById(id);
-const $q = $("q"), $state = $("state"), $hide = $("hide");
+const $q = $("q"), $state = $("state"), $sort = $("sort"), $hide = $("hide");
 const $grid = $("grid"), $score = $("score"), $bar = $("bar");
 const $summary = $("summary"), $empty = $("empty"), $loading = $("loading");
-const $sentinel = $("sentinel"), $total = $("total");
+const $sentinel = $("sentinel"), $total = $("total"), $colorProgress = $("color-progress");
 const $tabPlates = $("tab-plates"), $tabTrips = $("tab-trips");
 const $viewPlates = $("view-plates"), $viewTrips = $("view-trips");
-const $platesControls = $("plates-controls");
+const $platesControls = $("plates-controls"), $colorRow = $("color-row");
 const $tripBanner = $("trip-banner"), $tripBannerName = $("trip-banner-name");
 const $tripBannerCount = $("trip-banner-count"), $tripBannerEnd = $("trip-banner-end");
 const $tripActiveCard = $("trip-active-card"), $tripLog = $("trip-log");
 const $logCount = $("log-count"), $tripsPill = $("trips-pill");
+const $scanBtn = $("scan-btn");
 
 let hideSpotted = false;
 
@@ -279,6 +346,80 @@ function parseCSV(text){
   return rows;
 }
 
+function rgbToHsl(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max+min)/2;
+  if(max === min){ h = 0; s = 0; }
+  else {
+    const d = max-min;
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h = ((g-b)/d + (g<b?6:0)); break;
+      case g: h = ((b-r)/d + 2); break;
+      case b: h = ((r-g)/d + 4); break;
+    }
+    h *= 60;
+  }
+  return [h, s, l];
+}
+const colorCanvas = document.createElement("canvas");
+colorCanvas.width = 32; colorCanvas.height = 16;
+const colorCtx = colorCanvas.getContext("2d", {willReadFrequently:true});
+
+function extractColor(img){
+  try {
+    colorCtx.clearRect(0, 0, 32, 16);
+    colorCtx.drawImage(img, 0, 0, 32, 16);
+    const data = colorCtx.getImageData(0, 0, 32, 16).data;
+    const buckets = {red:0, orange:0, yellow:0, green:0, cyan:0, blue:0, purple:0, pink:0, white:0, black:0};
+    let totalH = 0, totalHCount = 0, totalPixels = 0;
+    for(let i=0; i<data.length; i+=4){
+      const r=data[i], g=data[i+1], b=data[i+2], a=data[i+3];
+      if(a < 200) continue;
+      totalPixels++;
+      const hsl = rgbToHsl(r,g,b);
+      const h = hsl[0], s = hsl[1], l = hsl[2];
+      let bucket;
+      if(s < 0.18){
+        if(l > 0.82) bucket = "white";
+        else if(l < 0.20) bucket = "black";
+        else continue;
+      } else {
+        if(h < 15 || h >= 345) bucket = "red";
+        else if(h < 45) bucket = "orange";
+        else if(h < 65) bucket = "yellow";
+        else if(h < 165) bucket = "green";
+        else if(h < 200) bucket = "cyan";
+        else if(h < 255) bucket = "blue";
+        else if(h < 290) bucket = "purple";
+        else bucket = "pink";
+        totalH += h; totalHCount++;
+      }
+      buckets[bucket]++;
+    }
+    if(totalPixels === 0) return null;
+    const colored = ["red","orange","yellow","green","cyan","blue","purple","pink"];
+    let coloredTotal = 0;
+    for(const k of colored) coloredTotal += buckets[k];
+    let maxKey, max = 0;
+    if(coloredTotal / totalPixels >= 0.18){
+      for(const k of colored){ if(buckets[k] > max){ max = buckets[k]; maxKey = k; } }
+    } else {
+      maxKey = buckets.white >= buckets.black ? "white" : "black";
+    }
+    const hue = totalHCount ? totalH/totalHCount : -1;
+    return {color: maxKey, hue: hue};
+  } catch(e){ return null; }
+}
+
+function applyCachedColor(p){
+  if(p.img && colorMap[p.img]){
+    p.color = colorMap[p.img].color;
+    p.hue = colorMap[p.img].hue;
+  }
+}
+
 async function init(){
   try {
     const res = await fetch("./us-license-plates.csv", {cache: "force-cache"});
@@ -293,21 +434,22 @@ async function init(){
     if(sIdx < 0 || tIdx < 0) throw new Error("Unexpected CSV columns: " + header.join(","));
     PLATES = rows.slice(1)
       .filter(r => r[sIdx] && r[tIdx])
-      .map((r, i) => ({
-        id: i,
-        state: r[sIdx].trim(),
-        title: r[tIdx].trim(),
-        img: (r[iIdx] || "").trim()
-      }));
+      .map((r, i) => {
+        const p = { id: i, state: r[sIdx].trim(), title: r[tIdx].trim(), img: (r[iIdx] || "").trim() };
+        applyCachedColor(p);
+        return p;
+      });
     $loading.hidden = true;
     $summary.hidden = false;
     $total.textContent = PLATES.length.toLocaleString();
     populateStates();
+    buildColorChips();
     applyFilters();
     setupObserver();
     renderTripBanner();
     renderTripsTab();
     updateTripsPill();
+    updateColorProgress();
   } catch(err){
     $loading.classList.add("error");
     $loading.innerHTML =
@@ -330,6 +472,37 @@ function populateStates(){
       opt.textContent = name + " (" + counts[code] + ")";
       $state.appendChild(opt);
     });
+}
+
+function buildColorChips(){
+  const scanBtn = $scanBtn;
+  COLOR_ORDER.forEach(c => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cdot";
+    btn.dataset.color = c;
+    btn.style.setProperty("--c", COLOR_HEX[c]);
+    btn.title = COLOR_LABELS[c];
+    btn.addEventListener("click", () => {
+      activeColorFilter = (activeColorFilter === c) ? "" : c;
+      updateColorActiveStates();
+      applyFilters();
+    });
+    $colorRow.insertBefore(btn, scanBtn);
+  });
+  $colorRow.querySelector(".cdot.all").addEventListener("click", () => {
+    activeColorFilter = "";
+    updateColorActiveStates();
+    applyFilters();
+  });
+  $scanBtn.addEventListener("click", scanAllColors);
+}
+function updateColorActiveStates(){
+  $colorRow.querySelectorAll(".cdot").forEach(b => {
+    if(b.classList.contains("scan")) return;
+    const c = b.dataset.color || "";
+    b.classList.toggle("active", c === activeColorFilter);
+  });
 }
 
 function lifetimeStatesProgress(){
@@ -360,8 +533,10 @@ function tripStateSet(trip){
 function applyFilters(){
   const q = $q.value.trim().toLowerCase();
   const stateF = $state.value;
+  const colorF = activeColorFilter;
   filteredCache = PLATES.filter(p => {
     if(stateF && p.state !== stateF) return false;
+    if(colorF && p.color !== colorF) return false;
     if(hideSpotted && found.has(p.id)) return false;
     if(q){
       const hay = (p.title + " " + p.state + " " + (STATE_NAMES[p.state]||"")).toLowerCase();
@@ -369,6 +544,21 @@ function applyFilters(){
     }
     return true;
   });
+  const sortBy = $sort.value;
+  if(sortBy === "state"){
+    filteredCache.sort((a,b) => a.state.localeCompare(b.state) || a.title.localeCompare(b.title));
+  } else if(sortBy === "title"){
+    filteredCache.sort((a,b) => a.title.localeCompare(b.title));
+  } else if(sortBy === "color"){
+    filteredCache.sort((a,b) => {
+      const ar = a.color ? COLOR_RANK[a.color] : 99;
+      const br = b.color ? COLOR_RANK[b.color] : 99;
+      if(ar !== br) return ar - br;
+      const ah = (a.hue !== undefined && a.hue >= 0) ? a.hue : 999;
+      const bh = (b.hue !== undefined && b.hue >= 0) ? b.hue : 999;
+      return ah - bh;
+    });
+  }
   renderedCount = 0;
   $grid.innerHTML = "";
   $empty.hidden = filteredCache.length > 0;
@@ -392,16 +582,43 @@ function buildCard(p){
   el.dataset.id = p.id;
   const stateLong = STATE_NAMES[p.state] || p.state;
   const imgSrc = p.img ? "./plates/" + encodeURIComponent(p.state) + "/" + encodeURI(p.img) : "";
+  const dotColor = p.color ? COLOR_HEX[p.color] : "#cbd5e1";
   el.innerHTML =
     '<div class="plate-img" data-state="' + escapeHtml(p.state) + '" data-title="' + escapeHtml(p.title) + '">' +
+      '<span class="color-dot" style="background:' + dotColor + '"></span>' +
       (imgSrc
-        ? '<img loading="lazy" decoding="async" alt="" src="' + escapeHtml(imgSrc) + '" onerror="this.parentNode.classList.add(\'fallback\');this.remove();">'
+        ? '<img loading="lazy" decoding="async" alt="" src="' + escapeHtml(imgSrc) + '">'
         : '') +
     '</div>' +
     '<div class="plate-meta">' +
       '<div class="state">' + escapeHtml(p.state) + ' &middot; ' + escapeHtml(stateLong) + '</div>' +
       '<div class="title">' + escapeHtml(p.title) + '</div>' +
     '</div>';
+
+  const imgEl = el.querySelector("img");
+  if(imgEl){
+    imgEl.addEventListener("error", () => {
+      imgEl.parentNode.classList.add("fallback");
+      imgEl.remove();
+    });
+    if(!p.color){
+      const onload = () => {
+        const result = extractColor(imgEl);
+        if(result && p.img){
+          colorMap[p.img] = result;
+          colorMapDirty = true;
+          queueColorPersist();
+          p.color = result.color;
+          p.hue = result.hue;
+          const dot = el.querySelector(".color-dot");
+          if(dot) dot.style.background = COLOR_HEX[result.color];
+        }
+      };
+      if(imgEl.complete && imgEl.naturalWidth) onload();
+      else imgEl.addEventListener("load", onload, {once:true});
+    }
+  }
+
   el.addEventListener("click", () => onPlateTap(p, el));
   return el;
 }
@@ -438,6 +655,15 @@ function updateSummary(){
     "<span>Showing <strong>" + filteredCache.length.toLocaleString() + "</strong></span>";
 }
 
+function updateColorProgress(){
+  const n = Object.keys(colorMap).length;
+  $colorProgress.textContent = n.toLocaleString();
+  if(n >= PLATES.length && PLATES.length > 0){
+    $scanBtn.textContent = "All scanned";
+    $scanBtn.disabled = true;
+  }
+}
+
 function setupObserver(){
   const io = new IntersectionObserver(entries => {
     for(const e of entries){
@@ -447,6 +673,53 @@ function setupObserver(){
   io.observe($sentinel);
 }
 
+let scanInFlight = false;
+async function scanAllColors(){
+  if(scanInFlight) return;
+  const todo = PLATES.filter(p => p.img && !colorMap[p.img]);
+  if(todo.length === 0){ updateColorProgress(); return; }
+  if(!confirm("Scan " + todo.length + " plate image" + (todo.length===1?"":"s") + " in the background to fill the color filter? Uses ~" + Math.ceil(todo.length*0.012) + " MB of data.")) return;
+  scanInFlight = true;
+  $scanBtn.textContent = "Scanning 0/" + todo.length;
+  $scanBtn.disabled = true;
+  const CONCURRENT = 6;
+  let done = 0, idx = 0;
+  await new Promise(resolve => {
+    function next(){
+      if(idx >= todo.length){
+        if(done >= todo.length) resolve();
+        return;
+      }
+      const p = todo[idx++];
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = () => {
+        const result = extractColor(img);
+        if(result){
+          colorMap[p.img] = result;
+          colorMapDirty = true;
+          p.color = result.color;
+          p.hue = result.hue;
+        }
+        done++;
+        if(done % 25 === 0 || done === todo.length){
+          $scanBtn.textContent = "Scanning " + done + "/" + todo.length;
+          queueColorPersist();
+        }
+        if(done === todo.length){ resolve(); return; }
+        next();
+      };
+      img.onerror = () => { done++; if(done === todo.length) resolve(); else next(); };
+      img.src = "./plates/" + encodeURIComponent(p.state) + "/" + encodeURI(p.img);
+    }
+    for(let i = 0; i < CONCURRENT; i++) next();
+  });
+  scanInFlight = false;
+  persistColors();
+  updateColorProgress();
+  applyFilters();
+}
+
 function showTab(name){
   const isPlates = name === "plates";
   $tabPlates.classList.toggle("active", isPlates);
@@ -454,6 +727,7 @@ function showTab(name){
   $viewPlates.hidden = !isPlates;
   $viewTrips.hidden = isPlates;
   $platesControls.style.display = isPlates ? "" : "none";
+  $colorRow.style.display = isPlates ? "" : "none";
   if(!isPlates) renderTripsTab();
 }
 
@@ -601,37 +875,25 @@ function startTrip(name, notes){
   renderTripBanner();
   renderTripsTab();
 }
-
 function endTrip(){
   if(!activeTrip) return;
   const states = [...tripStateSet(activeTrip)].sort();
   if(!confirm("End \"" + activeTrip.name + "\" with " + states.length + "/51 states? It'll be saved to your trip log.")) return;
   const completed = {
-    id: activeTrip.id,
-    name: activeTrip.name,
-    notes: activeTrip.notes || "",
-    started: activeTrip.started,
-    ended: new Date().toISOString(),
-    states: states,
-    plateCount: activeTrip.platesAdded.length
+    id: activeTrip.id, name: activeTrip.name, notes: activeTrip.notes || "",
+    started: activeTrip.started, ended: new Date().toISOString(),
+    states: states, plateCount: activeTrip.platesAdded.length
   };
   tripLog.unshift(completed);
   activeTrip = null;
-  saveTrips();
-  updateTripsPill();
-  renderTripBanner();
-  renderTripsTab();
+  saveTrips(); updateTripsPill(); renderTripBanner(); renderTripsTab();
 }
-
 function cancelTrip(){
   if(!activeTrip) return;
   if(!confirm("Discard the current trip? Your lifetime spotted list will keep all the plates you tapped, but this trip won't be saved to the log.")) return;
   activeTrip = null;
-  saveTrips();
-  renderTripBanner();
-  renderTripsTab();
+  saveTrips(); renderTripBanner(); renderTripsTab();
 }
-
 function updateTripsPill(){
   const n = tripLog.length;
   $tripsPill.hidden = n === 0;
@@ -641,6 +903,7 @@ function updateTripsPill(){
 let qDeb;
 $q.addEventListener("input", () => { clearTimeout(qDeb); qDeb = setTimeout(applyFilters, 120); });
 $state.addEventListener("change", applyFilters);
+$sort.addEventListener("change", applyFilters);
 $hide.addEventListener("click", () => {
   hideSpotted = !hideSpotted;
   $hide.classList.toggle("active", hideSpotted);
@@ -651,6 +914,7 @@ $tabPlates.addEventListener("click", () => showTab("plates"));
 $tabTrips.addEventListener("click", () => showTab("trips"));
 $tripBannerEnd.addEventListener("click", () => { showTab("trips"); });
 
+window.addEventListener("beforeunload", persistColors);
 init();
 </script>
 </body>
