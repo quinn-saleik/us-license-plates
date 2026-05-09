@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>License Plate Road Trip</title>
-<meta name="description" content="Search and spot every U.S. license plate. Built on jonkeegan/us-license-plates.">
+<meta name="description" content="Search, spot, and track road trips across every U.S. license plate. Built on jonkeegan/us-license-plates.">
 <meta name="theme-color" content="#1d4ed8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -19,7 +19,10 @@
   --muted:#6b7280;
   --line:#e5e7eb;
   --accent:#1d4ed8;
+  --accent-soft:#eff6ff;
   --good:#15803d;
+  --good-soft:#ecfdf5;
+  --warn:#b45309;
   --card:#ffffff;
   --shadow:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
 }
@@ -39,13 +42,16 @@ h1 .em{color:var(--accent)}
 .score small{color:var(--muted);font-weight:500}
 .progress{height:6px;background:#eef0f4}
 .progress > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s ease;width:0%}
+.tabs{display:flex;border-bottom:1px solid var(--line);background:#fff}
+.tab{flex:1;background:none;border:none;padding:11px 8px;font:600 14px/1 inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;-webkit-appearance:none;letter-spacing:-.005em}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .pill{display:inline-block;background:#eef2ff;color:var(--accent);font-size:11px;padding:2px 7px;border-radius:999px;margin-left:4px;font-weight:700;vertical-align:1px}
 .controls{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);background:#fff;align-items:center}
 .search{flex:1 1 220px;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;-webkit-appearance:none}
 .search:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
 select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);max-width:50%}
 .chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
 .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-.reset{background:none;border:1px solid var(--line);color:var(--muted);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
 main{padding:12px;max-width:1200px;margin:0 auto}
 .summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--muted)}
 .summary strong{color:var(--ink)}
@@ -77,7 +83,7 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 .plate-meta{padding:8px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
 .plate-meta .state{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .plate-meta .title{font-weight:600;font-size:13px;line-height:1.25;color:var(--ink)}
-.plate.found{background:#ecfdf5;border-color:#86efac}
+.plate.found{background:var(--good-soft);border-color:#86efac}
 .plate.found .plate-img::after{
   content:"\2713";
   position:absolute;top:6px;right:6px;
@@ -88,6 +94,53 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 .plate.found .title{color:#065f46}
 .empty{padding:30px;text-align:center;color:var(--muted)}
 #sentinel{height:1px}
+
+.trip-banner{
+  background:linear-gradient(90deg,#1d4ed8,#0ea5e9);color:#fff;border-radius:12px;
+  padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:var(--shadow);font-size:14px;
+}
+.trip-banner strong{font-weight:700}
+.trip-banner .count{background:rgba(255,255,255,.18);padding:3px 9px;border-radius:999px;font-weight:700;font-variant-numeric:tabular-nums}
+.trip-banner .end-mini{background:rgba(255,255,255,.18);border:none;color:#fff;padding:5px 10px;border-radius:999px;font:600 12px/1 inherit;cursor:pointer}
+.trip-banner .end-mini:active{opacity:.7}
+
+.trips-view{display:flex;flex-direction:column;gap:14px}
+.trip-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.trip-card.active{background:var(--accent-soft);border-color:#bfdbfe}
+.trip-card h2{margin:0 0 8px;font-size:15px;letter-spacing:-.005em}
+.trip-card .label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.trip-card label{display:block;font-size:12px;color:var(--muted);margin-top:10px;margin-bottom:4px;font-weight:600}
+.trip-card input[type=text], .trip-card textarea{
+  width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:#fff;
+  -webkit-appearance:none;
+}
+.trip-card input[type=text]:focus, .trip-card textarea:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
+.trip-card textarea{resize:vertical;min-height:60px}
+.trip-card .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin-top:6px}
+.trip-card .row strong{color:var(--ink)}
+.btn{
+  display:inline-block;background:var(--accent);color:#fff;border:none;
+  padding:10px 16px;border-radius:10px;font:600 14px/1 inherit;cursor:pointer;-webkit-appearance:none;
+}
+.btn:active{opacity:.85}
+.btn.danger{background:#b91c1c}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.state-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.state-pill{background:#fff;border:1px solid var(--line);color:var(--ink);font:600 11px/1 monospace;padding:4px 7px;border-radius:6px;letter-spacing:.05em}
+.state-pill.in-trip{background:#dcfce7;border-color:#86efac;color:#065f46}
+.log-trip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.log-trip h3{margin:0 0 4px;font-size:14px}
+.log-trip .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.log-trip .meta strong{color:var(--ink)}
+.log-trip .toggle{background:none;border:none;color:var(--accent);font:600 12px/1 inherit;cursor:pointer;padding:6px 0;margin-top:4px}
+.log-trip .delete{background:none;border:none;color:var(--muted);font:600 12px/1 inherit;cursor:pointer;padding:6px 0;margin-top:4px;float:right}
+.log-trip .delete:hover{color:#b91c1c}
+.log-trip .details{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--ink)}
+.log-trip .details .notes{white-space:pre-wrap;margin-top:8px;padding:8px 10px;background:#f9fafb;border-radius:8px;color:var(--ink);font-size:13px}
+.log-empty{padding:24px 14px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+
 footer{padding:24px 16px 60px;text-align:center;color:var(--muted);font-size:12px}
 footer a{color:var(--accent)}
 @media (max-width: 480px){
@@ -95,6 +148,7 @@ footer a{color:var(--accent)}
   h1{font-size:15px}
   .controls{padding:6px 10px}
   main{padding:10px}
+  .trip-banner{padding:9px 12px;font-size:13px}
 }
 </style>
 </head>
@@ -105,20 +159,38 @@ footer a{color:var(--accent)}
     <div class="score" id="score">0 <small>spotted</small></div>
   </div>
   <div class="progress"><div id="bar"></div></div>
-  <div class="controls">
+  <nav class="tabs" role="tablist">
+    <button class="tab active" id="tab-plates" data-tab="plates" type="button" role="tab">Plates</button>
+    <button class="tab" id="tab-trips" data-tab="trips" type="button" role="tab">Trips<span class="pill" id="trips-pill" hidden>0</span></button>
+  </nav>
+  <div class="controls" id="plates-controls">
     <input class="search" id="q" placeholder="Search plates or states&hellip;" autocomplete="off" inputmode="search">
     <select id="state"><option value="">All states</option></select>
     <button class="chip" id="hide" type="button">Hide spotted</button>
-    <button class="reset" id="reset" type="button">Reset</button>
   </div>
 </header>
 
 <main>
-  <div class="loading" id="loading">Loading plates&hellip;</div>
-  <div class="summary" id="summary" hidden></div>
-  <div class="grid" id="grid"></div>
-  <div id="sentinel"></div>
-  <div class="empty" id="empty" hidden>No plates match your filters.</div>
+  <section id="view-plates">
+    <div class="trip-banner" id="trip-banner" hidden>
+      <span>&#128663; <strong>Trip:</strong> <span id="trip-banner-name"></span></span>
+      <span class="count"><span id="trip-banner-count">0</span>/51 states</span>
+      <button class="end-mini" id="trip-banner-end" type="button">End</button>
+    </div>
+    <div class="loading" id="loading">Loading plates&hellip;</div>
+    <div class="summary" id="summary" hidden></div>
+    <div class="grid" id="grid"></div>
+    <div id="sentinel"></div>
+    <div class="empty" id="empty" hidden>No plates match your filters.</div>
+  </section>
+
+  <section id="view-trips" class="trips-view" hidden>
+    <div id="trip-active-card"></div>
+    <div>
+      <div class="label" style="padding:0 4px 6px">Past trips <span id="log-count">(0)</span></div>
+      <div id="trip-log"></div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -141,23 +213,45 @@ const STATE_NAMES = {
   SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",
   WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"
 };
+const STATE_CODES = Object.keys(STATE_NAMES);
 
 let PLATES = [];
 let filteredCache = [];
 let renderedCount = 0;
 const BATCH = 200;
 
-const STORE_KEY = "lpgame.found.v2";
+const FOUND_KEY = "lpgame.found.v2";
+const TRIPS_KEY = "lpgame.trips.v1";
 let found;
-try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || "[]")); }
+let activeTrip = null;
+let tripLog = [];
+let expandedTrip = null;
+
+try { found = new Set(JSON.parse(localStorage.getItem(FOUND_KEY) || "[]")); }
 catch(e){ found = new Set(); }
-function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }catch(e){} }
+function persist(){ try{ localStorage.setItem(FOUND_KEY, JSON.stringify([...found])); }catch(e){} }
+
+try {
+  const t = JSON.parse(localStorage.getItem(TRIPS_KEY) || "{}");
+  activeTrip = t.activeTrip || null;
+  tripLog = Array.isArray(t.log) ? t.log : [];
+} catch(e){ activeTrip = null; tripLog = []; }
+function saveTrips(){
+  try { localStorage.setItem(TRIPS_KEY, JSON.stringify({activeTrip, log: tripLog})); } catch(e){}
+}
 
 const $ = id => document.getElementById(id);
-const $q = $("q"), $state = $("state"), $hide = $("hide"), $reset = $("reset");
+const $q = $("q"), $state = $("state"), $hide = $("hide");
 const $grid = $("grid"), $score = $("score"), $bar = $("bar");
 const $summary = $("summary"), $empty = $("empty"), $loading = $("loading");
 const $sentinel = $("sentinel"), $total = $("total");
+const $tabPlates = $("tab-plates"), $tabTrips = $("tab-trips");
+const $viewPlates = $("view-plates"), $viewTrips = $("view-trips");
+const $platesControls = $("plates-controls");
+const $tripBanner = $("trip-banner"), $tripBannerName = $("trip-banner-name");
+const $tripBannerCount = $("trip-banner-count"), $tripBannerEnd = $("trip-banner-end");
+const $tripActiveCard = $("trip-active-card"), $tripLog = $("trip-log");
+const $logCount = $("log-count"), $tripsPill = $("trips-pill");
 
 let hideSpotted = false;
 
@@ -211,14 +305,15 @@ async function init(){
     populateStates();
     applyFilters();
     setupObserver();
+    renderTripBanner();
+    renderTripsTab();
+    updateTripsPill();
   } catch(err){
     $loading.classList.add("error");
     $loading.innerHTML =
       "<strong>Couldn&rsquo;t load <code>us-license-plates.csv</code>.</strong><br><br>" +
       "Make sure this <code>index.html</code> is sitting next to <code>us-license-plates.csv</code> " +
-      "and the <code>plates/</code> folder in your repo. " +
-      "If you&rsquo;re opening it from disk, use a local server (e.g. <code>python3 -m http.server</code>) " +
-      "or deploy via GitHub Pages.<br><br>" +
+      "and the <code>plates/</code> folder in your repo.<br><br>" +
       "<small>" + escapeHtml(err.message) + "</small>";
   }
 }
@@ -237,7 +332,7 @@ function populateStates(){
     });
 }
 
-function statesProgress(){
+function lifetimeStatesProgress(){
   const byState = {};
   for(const p of PLATES){
     const b = byState[p.state] || (byState[p.state] = {total:0, found:0});
@@ -250,6 +345,16 @@ function statesProgress(){
     if(byState[k].found === byState[k].total) full++;
   }
   return {any, full};
+}
+
+function tripStateSet(trip){
+  if(!trip || !Array.isArray(trip.platesAdded)) return new Set();
+  const s = new Set();
+  for(const id of trip.platesAdded){
+    const p = PLATES[id]; if(!p) continue;
+    s.add(p.state);
+  }
+  return s;
 }
 
 function applyFilters(){
@@ -297,18 +402,30 @@ function buildCard(p){
       '<div class="state">' + escapeHtml(p.state) + ' &middot; ' + escapeHtml(stateLong) + '</div>' +
       '<div class="title">' + escapeHtml(p.title) + '</div>' +
     '</div>';
-  el.addEventListener("click", () => {
-    if(found.has(p.id)) found.delete(p.id);
-    else found.add(p.id);
-    persist();
-    el.classList.toggle("found", found.has(p.id));
-    updateSummary();
-  });
+  el.addEventListener("click", () => onPlateTap(p, el));
   return el;
 }
 
+function onPlateTap(p, el){
+  const wasFound = found.has(p.id);
+  if(wasFound){
+    found.delete(p.id);
+  } else {
+    found.add(p.id);
+    if(activeTrip && !activeTrip.platesAdded.includes(p.id)){
+      activeTrip.platesAdded.push(p.id);
+      saveTrips();
+      renderTripBanner();
+      if(!$viewTrips.hidden) renderTripsTab();
+    }
+  }
+  persist();
+  el.classList.toggle("found", found.has(p.id));
+  updateSummary();
+}
+
 function updateSummary(){
-  const sp = statesProgress();
+  const sp = lifetimeStatesProgress();
   const total = PLATES.length || 1;
   const pct = (found.size / total) * 100;
   $score.innerHTML = found.size.toLocaleString() + ' <small>spotted</small>';
@@ -330,6 +447,197 @@ function setupObserver(){
   io.observe($sentinel);
 }
 
+function showTab(name){
+  const isPlates = name === "plates";
+  $tabPlates.classList.toggle("active", isPlates);
+  $tabTrips.classList.toggle("active", !isPlates);
+  $viewPlates.hidden = !isPlates;
+  $viewTrips.hidden = isPlates;
+  $platesControls.style.display = isPlates ? "" : "none";
+  if(!isPlates) renderTripsTab();
+}
+
+function renderTripBanner(){
+  if(!activeTrip){ $tripBanner.hidden = true; return; }
+  $tripBanner.hidden = false;
+  $tripBannerName.textContent = activeTrip.name;
+  $tripBannerCount.textContent = tripStateSet(activeTrip).size;
+}
+
+function fmtDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+}
+function fmtRange(a, b){
+  if(!a) return "";
+  const da = fmtDate(a), db = b ? fmtDate(b) : "";
+  if(!db) return da;
+  if(da === db) return da;
+  return da + " → " + db;
+}
+
+function renderTripsTab(){
+  if(activeTrip){
+    const tripStates = tripStateSet(activeTrip);
+    const platesCount = activeTrip.platesAdded.length;
+    const pillsHtml = STATE_CODES.map(code => {
+      const cls = tripStates.has(code) ? "state-pill in-trip" : "state-pill";
+      return '<span class="' + cls + '" title="' + escapeHtml(STATE_NAMES[code]) + '">' + code + '</span>';
+    }).join("");
+    $tripActiveCard.innerHTML =
+      '<div class="trip-card active">' +
+        '<div class="label">Current trip</div>' +
+        '<h2 id="trip-edit-name" contenteditable="true" spellcheck="false">' + escapeHtml(activeTrip.name) + '</h2>' +
+        '<div class="row">' +
+          '<span><strong>' + tripStates.size + '</strong>/51 states</span>' +
+          '<span>&middot;</span>' +
+          '<span><strong>' + platesCount + '</strong> plate' + (platesCount===1?'':'s') + ' tapped</span>' +
+          '<span>&middot;</span>' +
+          '<span>Started ' + escapeHtml(fmtDate(activeTrip.started)) + '</span>' +
+        '</div>' +
+        '<div class="state-pills" aria-label="states found">' + pillsHtml + '</div>' +
+        '<label for="trip-edit-notes">Notes</label>' +
+        '<textarea id="trip-edit-notes" placeholder="Where you went, favorite plate, etc.">' + escapeHtml(activeTrip.notes || "") + '</textarea>' +
+        '<div class="btn-row">' +
+          '<button class="btn danger" id="btn-end-trip" type="button">End trip</button>' +
+          '<button class="btn ghost" id="btn-cancel-trip" type="button">Cancel (delete this trip)</button>' +
+        '</div>' +
+      '</div>';
+
+    const nameEl = $("trip-edit-name");
+    const notesEl = $("trip-edit-notes");
+    let saveDeb;
+    const queueSave = () => { clearTimeout(saveDeb); saveDeb = setTimeout(() => {
+      activeTrip.name = (nameEl.textContent || "").trim() || "Road trip";
+      activeTrip.notes = notesEl.value;
+      saveTrips();
+      renderTripBanner();
+    }, 250); };
+    nameEl.addEventListener("input", queueSave);
+    nameEl.addEventListener("blur", () => { nameEl.textContent = activeTrip.name; });
+    nameEl.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); nameEl.blur(); } });
+    notesEl.addEventListener("input", queueSave);
+    $("btn-end-trip").addEventListener("click", endTrip);
+    $("btn-cancel-trip").addEventListener("click", cancelTrip);
+  } else {
+    $tripActiveCard.innerHTML =
+      '<div class="trip-card">' +
+        '<div class="label">Start a trip</div>' +
+        '<h2>New road trip</h2>' +
+        '<label for="new-name">Trip name</label>' +
+        '<input id="new-name" type="text" placeholder="e.g. NYC → Maine" maxlength="60">' +
+        '<label for="new-notes">Notes (optional)</label>' +
+        '<textarea id="new-notes" placeholder="Anything you want to remember about this drive."></textarea>' +
+        '<div class="btn-row">' +
+          '<button class="btn" id="btn-start-trip" type="button">&#128663; Start trip</button>' +
+        '</div>' +
+        '<div class="row" style="margin-top:10px;font-size:12px">Counts <strong>unique states</strong> whose plates you tap during the trip. Taps also update your lifetime spotted list.</div>' +
+      '</div>';
+    $("btn-start-trip").addEventListener("click", () => {
+      const name = ($("new-name").value || "").trim();
+      const notes = $("new-notes").value;
+      startTrip(name, notes);
+    });
+  }
+
+  if(tripLog.length === 0){
+    $tripLog.innerHTML = '<div class="log-empty">No completed trips yet. Start one above &uarr;</div>';
+  } else {
+    $tripLog.innerHTML = tripLog.map(t => renderLogTrip(t)).join("");
+    tripLog.forEach(t => {
+      const tEl = $("toggle-" + t.id);
+      const dEl = $("delete-" + t.id);
+      if(tEl) tEl.addEventListener("click", () => {
+        expandedTrip = (expandedTrip === t.id) ? null : t.id;
+        renderTripsTab();
+      });
+      if(dEl) dEl.addEventListener("click", () => {
+        if(confirm("Delete trip \"" + t.name + "\"? This can't be undone.")){
+          tripLog = tripLog.filter(x => x.id !== t.id);
+          saveTrips();
+          updateTripsPill();
+          renderTripsTab();
+        }
+      });
+    });
+  }
+  $logCount.textContent = "(" + tripLog.length + ")";
+}
+
+function renderLogTrip(t){
+  const expanded = expandedTrip === t.id;
+  const states = Array.isArray(t.states) ? t.states : [];
+  const stateList = states.length
+    ? '<div class="state-pills">' + states.map(s => '<span class="state-pill in-trip">' + s + '</span>').join("") + '</div>'
+    : '<div style="color:var(--muted);font-size:13px;margin-top:6px">No states recorded.</div>';
+  const notesHtml = t.notes ? '<div class="notes">' + escapeHtml(t.notes) + '</div>' : '';
+  return (
+    '<div class="log-trip" id="log-' + t.id + '">' +
+      '<button class="delete" id="delete-' + t.id + '" type="button">Delete</button>' +
+      '<h3>' + escapeHtml(t.name || "Untitled trip") + '</h3>' +
+      '<div class="meta">' +
+        '<span><strong>' + states.length + '</strong>/51 states</span>' +
+        '<span>&middot;</span>' +
+        '<span>' + escapeHtml(fmtRange(t.started, t.ended)) + '</span>' +
+      '</div>' +
+      '<button class="toggle" id="toggle-' + t.id + '" type="button">' + (expanded ? "Hide details" : "Show details") + '</button>' +
+      (expanded
+        ? '<div class="details">' + stateList + notesHtml + '</div>'
+        : '') +
+    '</div>'
+  );
+}
+
+function startTrip(name, notes){
+  activeTrip = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    name: (name || "").trim() || "Road trip",
+    notes: notes || "",
+    started: new Date().toISOString(),
+    platesAdded: []
+  };
+  saveTrips();
+  renderTripBanner();
+  renderTripsTab();
+}
+
+function endTrip(){
+  if(!activeTrip) return;
+  const states = [...tripStateSet(activeTrip)].sort();
+  if(!confirm("End \"" + activeTrip.name + "\" with " + states.length + "/51 states? It'll be saved to your trip log.")) return;
+  const completed = {
+    id: activeTrip.id,
+    name: activeTrip.name,
+    notes: activeTrip.notes || "",
+    started: activeTrip.started,
+    ended: new Date().toISOString(),
+    states: states,
+    plateCount: activeTrip.platesAdded.length
+  };
+  tripLog.unshift(completed);
+  activeTrip = null;
+  saveTrips();
+  updateTripsPill();
+  renderTripBanner();
+  renderTripsTab();
+}
+
+function cancelTrip(){
+  if(!activeTrip) return;
+  if(!confirm("Discard the current trip? Your lifetime spotted list will keep all the plates you tapped, but this trip won't be saved to the log.")) return;
+  activeTrip = null;
+  saveTrips();
+  renderTripBanner();
+  renderTripsTab();
+}
+
+function updateTripsPill(){
+  const n = tripLog.length;
+  $tripsPill.hidden = n === 0;
+  $tripsPill.textContent = n;
+}
+
 let qDeb;
 $q.addEventListener("input", () => { clearTimeout(qDeb); qDeb = setTimeout(applyFilters, 120); });
 $state.addEventListener("change", applyFilters);
@@ -339,11 +647,9 @@ $hide.addEventListener("click", () => {
   $hide.textContent = hideSpotted ? "Show spotted" : "Hide spotted";
   applyFilters();
 });
-$reset.addEventListener("click", () => {
-  if(confirm("Reset all spotted plates? This can't be undone.")){
-    found.clear(); persist(); applyFilters();
-  }
-});
+$tabPlates.addEventListener("click", () => showTab("plates"));
+$tabTrips.addEventListener("click", () => showTab("trips"));
+$tripBannerEnd.addEventListener("click", () => { showTab("trips"); });
 
 init();
 </script>
