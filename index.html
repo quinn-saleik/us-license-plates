@@ -42,15 +42,16 @@ h1 .em{color:var(--accent)}
 .progress{height:6px;background:#eef0f4}
 .progress > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s ease;width:0%}
 .tabs{display:flex;border-bottom:1px solid var(--line);background:#fff}
-.tab{flex:1;background:none;border:none;padding:11px 8px;font:600 14px/1 inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;-webkit-appearance:none;letter-spacing:-.005em}
+.tab{flex:1;background:none;border:none;padding:11px 6px;font:600 13px/1 inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;-webkit-appearance:none;letter-spacing:-.005em}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab .pill{display:inline-block;background:#eef2ff;color:var(--accent);font-size:11px;padding:2px 7px;border-radius:999px;margin-left:4px;font-weight:700;vertical-align:1px}
 .controls{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);background:#fff;align-items:center}
 .search{flex:1 1 220px;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff;-webkit-appearance:none}
 .search:focus{outline:2px solid #c7d2fe;border-color:#a5b4fc}
-select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);max-width:50%}
+select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);max-width:48%}
 .chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 11px;border-radius:999px;font:13px/1 inherit;cursor:pointer}
 .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.clear{color:var(--muted)}
 
 .color-row{display:flex;gap:6px;padding:6px 14px 8px;border-bottom:1px solid var(--line);background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:center}
 .color-row::-webkit-scrollbar{height:0}
@@ -73,6 +74,32 @@ select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inh
 .cdot.scan::after{display:none}
 
 main{padding:12px;max-width:1200px;margin:0 auto}
+
+.map-wrap{margin-bottom:10px}
+.map-summary{
+  cursor:pointer;padding:8px 12px;background:#fff;border:1px solid var(--line);
+  border-radius:10px;font:600 13px/1 inherit;color:var(--ink);
+  display:flex;align-items:center;gap:6px;list-style:none;
+  -webkit-appearance:none;width:100%;text-align:left;
+}
+.map-summary::-webkit-details-marker{display:none}
+.map-summary::before{content:"\25B8";font-size:11px;color:var(--muted);transition:transform .15s}
+details[open] .map-summary::before{transform:rotate(90deg)}
+.us-map{display:grid;grid-template-columns:repeat(12, minmax(0, 1fr));gap:3px;padding:10px 4px;max-width:520px;margin:0 auto}
+.us-tile{
+  aspect-ratio:1;border:none;border-radius:4px;background:#f1f5f9;color:#94a3b8;
+  font:700 9px/1 ui-monospace,Menlo,monospace;cursor:pointer;padding:0;-webkit-appearance:none;
+  display:flex;align-items:center;justify-content:center;transition:background .15s,box-shadow .15s;
+}
+.us-tile.has-some{background:#dbeafe;color:#1e40af}
+.us-tile.has-many{background:#60a5fa;color:#fff}
+.us-tile.complete{background:#10b981;color:#fff}
+.us-tile.in-trip{box-shadow:inset 0 0 0 2px #f59e0b}
+.us-tile.selected{box-shadow:inset 0 0 0 2px var(--ink)}
+.map-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--muted);padding:0 8px 4px}
+.map-legend span{display:inline-flex;align-items:center;gap:4px}
+.map-legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+
 .summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--muted)}
 .summary strong{color:var(--ink)}
 .loading{padding:40px 16px;text-align:center;color:var(--muted)}
@@ -85,20 +112,16 @@ main{padding:12px;max-width:1200px;margin:0 auto}
   position:relative;overflow:hidden;font:inherit;color:inherit;
 }
 .plate:active{transform:scale(.98)}
-.plate-img{
-  aspect-ratio:2/1;background:#f3f4f6;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-}
+.plate-img{aspect-ratio:2/1;background:#f3f4f6;position:relative;overflow:hidden}
 .plate-img img{width:100%;height:100%;object-fit:cover;display:block}
 .plate-img.fallback::before{
-  content:attr(data-state);
-  position:absolute;top:6px;left:8px;font:600 10px/1 monospace;color:#94a3b8;letter-spacing:.1em;
+  content:attr(data-state);position:absolute;top:6px;left:8px;
+  font:600 10px/1 monospace;color:#94a3b8;letter-spacing:.1em;
 }
 .plate-img.fallback::after{
-  content:attr(data-title);
-  font:600 12px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;color:#1f2937;
-  text-align:center;padding:0 10px;
+  content:attr(data-title);position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font:600 12px/1.2 -apple-system,sans-serif;color:#1f2937;text-align:center;padding:0 10px;
 }
 .color-dot{
   position:absolute;top:6px;left:6px;width:11px;height:11px;border-radius:50%;
@@ -110,11 +133,9 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 .plate-meta .title{font-weight:600;font-size:13px;line-height:1.25;color:var(--ink)}
 .plate.found{background:var(--good-soft);border-color:#86efac}
 .plate.found .plate-img::after{
-  content:"\2713";
-  position:absolute;top:6px;right:6px;
+  content:"\2713";position:absolute;top:6px;right:6px;
   background:var(--good);color:#fff;width:22px;height:22px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
-  z-index:2;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;z-index:2;
 }
 .plate.found .title{color:#065f46}
 .empty{padding:30px;text-align:center;color:var(--muted)}
@@ -144,10 +165,7 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 .trip-card textarea{resize:vertical;min-height:60px}
 .trip-card .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin-top:6px}
 .trip-card .row strong{color:var(--ink)}
-.btn{
-  display:inline-block;background:var(--accent);color:#fff;border:none;
-  padding:10px 16px;border-radius:10px;font:600 14px/1 inherit;cursor:pointer;-webkit-appearance:none;
-}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:10px;font:600 14px/1 inherit;cursor:pointer;-webkit-appearance:none}
 .btn:active{opacity:.85}
 .btn.danger{background:#b91c1c}
 .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
@@ -166,6 +184,34 @@ main{padding:12px;max-width:1200px;margin:0 auto}
 .log-trip .details .notes{white-space:pre-wrap;margin-top:8px;padding:8px 10px;background:#f9fafb;border-radius:8px;color:var(--ink);font-size:13px}
 .log-empty{padding:24px 14px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
 
+.stats-view{display:flex;flex-direction:column;gap:14px}
+.stats-hero{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:14px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stats-hero .num{font-size:42px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats-hero .sub{color:var(--muted);font-size:13px;margin-top:4px}
+.stats-hero .barwrap{height:8px;background:#dbeafe;border-radius:999px;margin-top:12px;overflow:hidden}
+.stats-hero .barwrap > div{height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);transition:width .3s}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.stat strong{display:block;font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.stat small{display:block;color:var(--muted);font-size:11px;margin-top:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.stats-section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.stats-section h3{margin:0 0 10px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.record{font-size:13px;color:var(--muted);padding:5px 0;border-top:1px solid var(--line)}
+.record:first-of-type{border-top:none}
+.record strong{color:var(--ink);font-weight:700}
+.bar-row{display:grid;grid-template-columns:1fr 110px 60px;gap:8px;align-items:center;font-size:12px;padding:5px 0}
+.bar-row .bar-label{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-row .bar-fill{height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden;position:relative}
+.bar-row .bar-fill > span{display:block;height:100%;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);border-radius:999px}
+.bar-row .bar-val{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.color-bars{display:flex;flex-direction:column;gap:4px}
+.cbar{display:grid;grid-template-columns:18px 70px 1fr 50px;gap:8px;align-items:center;font-size:12px;padding:3px 0}
+.cdot-mini{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.1)}
+.cbar-label{color:var(--ink);font-weight:600}
+.cbar-fill{height:8px;border-radius:999px;min-width:4px;opacity:.85}
+.cbar-val{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats-empty{padding:24px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+
 footer{padding:24px 16px 60px;text-align:center;color:var(--muted);font-size:12px}
 footer a{color:var(--accent)}
 @media (max-width: 480px){
@@ -174,6 +220,8 @@ footer a{color:var(--accent)}
   .controls{padding:6px 10px}
   main{padding:10px}
   .trip-banner{padding:9px 12px;font-size:13px}
+  .stats-hero .num{font-size:36px}
+  .stat strong{font-size:20px}
 }
 </style>
 </head>
@@ -185,19 +233,25 @@ footer a{color:var(--accent)}
   </div>
   <div class="progress"><div id="bar"></div></div>
   <nav class="tabs" role="tablist">
-    <button class="tab active" id="tab-plates" data-tab="plates" type="button" role="tab">Plates</button>
-    <button class="tab" id="tab-trips" data-tab="trips" type="button" role="tab">Trips<span class="pill" id="trips-pill" hidden>0</span></button>
+    <button class="tab active" id="tab-plates" type="button" role="tab">Plates</button>
+    <button class="tab" id="tab-trips" type="button" role="tab">Trips<span class="pill" id="trips-pill" hidden>0</span></button>
+    <button class="tab" id="tab-stats" type="button" role="tab">Stats</button>
   </nav>
   <div class="controls" id="plates-controls">
     <input class="search" id="q" placeholder="Search plates or states&hellip;" autocomplete="off" inputmode="search">
     <select id="state"><option value="">All states</option></select>
+    <select id="show">
+      <option value="all">Show: All</option>
+      <option value="unspotted">Unspotted only</option>
+      <option value="spotted">Found only</option>
+    </select>
     <select id="sort">
       <option value="default">Sort: Default</option>
       <option value="state">By state</option>
       <option value="color">By color</option>
       <option value="title">By title</option>
     </select>
-    <button class="chip" id="hide" type="button">Hide spotted</button>
+    <button class="chip clear" id="clear" type="button">Clear filters</button>
   </div>
   <div class="color-row" id="color-row">
     <button class="cdot all active" data-color="" type="button">All</button>
@@ -212,6 +266,17 @@ footer a{color:var(--accent)}
       <span class="count"><span id="trip-banner-count">0</span>/51 states</span>
       <button class="end-mini" id="trip-banner-end" type="button">End</button>
     </div>
+    <details class="map-wrap" id="map-details">
+      <summary class="map-summary">&#128506;&#65039; Map &middot; <strong id="map-states-count">0</strong>/51 states started</summary>
+      <div class="us-map" id="us-map"></div>
+      <div class="map-legend">
+        <span><i style="background:#f1f5f9"></i>None</span>
+        <span><i style="background:#dbeafe"></i>Some</span>
+        <span><i style="background:#60a5fa"></i>Most</span>
+        <span><i style="background:#10b981"></i>Complete</span>
+        <span><i style="box-shadow:inset 0 0 0 2px #f59e0b;background:#fff"></i>In trip</span>
+      </div>
+    </details>
     <div class="loading" id="loading">Loading plates&hellip;</div>
     <div class="summary" id="summary" hidden></div>
     <div class="grid" id="grid"></div>
@@ -222,10 +287,12 @@ footer a{color:var(--accent)}
   <section id="view-trips" class="trips-view" hidden>
     <div id="trip-active-card"></div>
     <div>
-      <div class="label" style="padding:0 4px 6px">Past trips <span id="log-count">(0)</span></div>
+      <div class="label" style="padding:0 4px 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700">Past trips <span id="log-count">(0)</span></div>
       <div id="trip-log"></div>
     </div>
   </section>
+
+  <section id="view-stats" class="stats-view" hidden></section>
 </main>
 
 <footer>
@@ -250,6 +317,17 @@ const STATE_NAMES = {
 };
 const STATE_CODES = Object.keys(STATE_NAMES);
 
+const TILE_LAYOUT = {
+  ME:[0,11],
+  VT:[1,10], NH:[1,11],
+  AK:[2,0], WA:[2,1], ID:[2,2], MT:[2,3], ND:[2,4], MN:[2,5], WI:[2,6], MI:[2,8], NY:[2,9], MA:[2,11],
+  OR:[3,1], NV:[3,2], WY:[3,3], SD:[3,4], IA:[3,5], IL:[3,6], IN:[3,7], OH:[3,8], PA:[3,9], NJ:[3,10], CT:[3,11],
+  CA:[4,1], UT:[4,2], CO:[4,3], NE:[4,4], MO:[4,5], KY:[4,6], WV:[4,7], VA:[4,8], MD:[4,9], DE:[4,10], RI:[4,11],
+  AZ:[5,2], NM:[5,3], KS:[5,4], AR:[5,5], TN:[5,6], NC:[5,7], SC:[5,8], DC:[5,9],
+  HI:[6,0], OK:[6,4], LA:[6,5], MS:[6,6], AL:[6,7], GA:[6,8],
+  TX:[7,4], FL:[7,9]
+};
+
 const COLOR_HEX = {
   red:"#ef4444", orange:"#f97316", yellow:"#eab308",
   green:"#16a34a", cyan:"#06b6d4", blue:"#2563eb",
@@ -273,6 +351,7 @@ const BATCH = 200;
 const FOUND_KEY = "lpgame.found.v2";
 const TRIPS_KEY = "lpgame.trips.v1";
 const COLORS_KEY = "lpgame.colors.v1";
+const FIRST_KEY = "lpgame.firstSpot.v1";
 let found;
 let activeTrip = null;
 let tripLog = [];
@@ -280,6 +359,7 @@ let expandedTrip = null;
 let colorMap = {};
 let colorMapDirty = false;
 let activeColorFilter = "";
+let showMode = "all";
 
 try { found = new Set(JSON.parse(localStorage.getItem(FOUND_KEY) || "[]")); }
 catch(e){ found = new Set(); }
@@ -306,21 +386,29 @@ function queueColorPersist(){
   colorPersistTimer = setTimeout(() => { colorPersistTimer = null; persistColors(); updateColorProgress(); }, 1500);
 }
 
+function getFirstSpotDate(){
+  try { return localStorage.getItem(FIRST_KEY) || null; } catch(e){ return null; }
+}
+function recordFirstSpotIfNeeded(){
+  if(found.size === 0) return;
+  if(getFirstSpotDate()) return;
+  try { localStorage.setItem(FIRST_KEY, new Date().toISOString()); } catch(e){}
+}
+
 const $ = id => document.getElementById(id);
-const $q = $("q"), $state = $("state"), $sort = $("sort"), $hide = $("hide");
+const $q = $("q"), $state = $("state"), $show = $("show"), $sort = $("sort"), $clear = $("clear");
 const $grid = $("grid"), $score = $("score"), $bar = $("bar");
 const $summary = $("summary"), $empty = $("empty"), $loading = $("loading");
 const $sentinel = $("sentinel"), $total = $("total"), $colorProgress = $("color-progress");
-const $tabPlates = $("tab-plates"), $tabTrips = $("tab-trips");
-const $viewPlates = $("view-plates"), $viewTrips = $("view-trips");
+const $tabPlates = $("tab-plates"), $tabTrips = $("tab-trips"), $tabStats = $("tab-stats");
+const $viewPlates = $("view-plates"), $viewTrips = $("view-trips"), $viewStats = $("view-stats");
 const $platesControls = $("plates-controls"), $colorRow = $("color-row");
 const $tripBanner = $("trip-banner"), $tripBannerName = $("trip-banner-name");
 const $tripBannerCount = $("trip-banner-count"), $tripBannerEnd = $("trip-banner-end");
 const $tripActiveCard = $("trip-active-card"), $tripLog = $("trip-log");
 const $logCount = $("log-count"), $tripsPill = $("trips-pill");
-const $scanBtn = $("scan-btn");
-
-let hideSpotted = false;
+const $scanBtn = $("scan-btn"), $usMap = $("us-map");
+const $mapStatesCount = $("map-states-count"), $mapDetails = $("map-details");
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 
@@ -444,12 +532,14 @@ async function init(){
     $total.textContent = PLATES.length.toLocaleString();
     populateStates();
     buildColorChips();
+    renderMap();
     applyFilters();
     setupObserver();
     renderTripBanner();
     renderTripsTab();
     updateTripsPill();
     updateColorProgress();
+    recordFirstSpotIfNeeded();
   } catch(err){
     $loading.classList.add("error");
     $loading.innerHTML =
@@ -505,19 +595,23 @@ function updateColorActiveStates(){
   });
 }
 
-function lifetimeStatesProgress(){
-  const byState = {};
+function statesBreakdown(){
+  const by = {};
   for(const p of PLATES){
-    const b = byState[p.state] || (byState[p.state] = {total:0, found:0});
+    const b = by[p.state] || (by[p.state] = {total:0, found:0});
     b.total++;
     if(found.has(p.id)) b.found++;
   }
+  return by;
+}
+function lifetimeStatesProgress(){
+  const by = statesBreakdown();
   let any = 0, full = 0;
-  for(const k of Object.keys(byState)){
-    if(byState[k].found > 0) any++;
-    if(byState[k].found === byState[k].total) full++;
+  for(const k of Object.keys(by)){
+    if(by[k].found > 0) any++;
+    if(by[k].found === by[k].total) full++;
   }
-  return {any, full};
+  return {any, full, byState: by};
 }
 
 function tripStateSet(trip){
@@ -537,7 +631,8 @@ function applyFilters(){
   filteredCache = PLATES.filter(p => {
     if(stateF && p.state !== stateF) return false;
     if(colorF && p.color !== colorF) return false;
-    if(hideSpotted && found.has(p.id)) return false;
+    if(showMode === "unspotted" && found.has(p.id)) return false;
+    if(showMode === "spotted" && !found.has(p.id)) return false;
     if(q){
       const hay = (p.title + " " + p.state + " " + (STATE_NAMES[p.state]||"")).toLowerCase();
       if(!hay.includes(q)) return false;
@@ -635,10 +730,12 @@ function onPlateTap(p, el){
       renderTripBanner();
       if(!$viewTrips.hidden) renderTripsTab();
     }
+    recordFirstSpotIfNeeded();
   }
   persist();
   el.classList.toggle("found", found.has(p.id));
   updateSummary();
+  renderMap();
 }
 
 function updateSummary(){
@@ -720,15 +817,52 @@ async function scanAllColors(){
   applyFilters();
 }
 
+function renderMap(){
+  const by = statesBreakdown();
+  const tripStates = activeTrip ? tripStateSet(activeTrip) : new Set();
+  const selected = $state.value;
+  let started = 0;
+  for(const k of Object.keys(by)) if(by[k].found > 0) started++;
+  $mapStatesCount.textContent = started;
+
+  const html = Object.entries(TILE_LAYOUT).map(([code, rc]) => {
+    const r = rc[0], c = rc[1];
+    const p = by[code] || {total:0, found:0};
+    const pct = p.total ? p.found/p.total : 0;
+    let cls = "us-tile";
+    if(p.found === 0) cls += "";
+    else if(p.found === p.total) cls += " complete";
+    else if(pct >= 0.25) cls += " has-many";
+    else cls += " has-some";
+    if(tripStates.has(code)) cls += " in-trip";
+    if(selected === code) cls += " selected";
+    return '<button type="button" class="' + cls + '" data-state="' + code + '" style="grid-column:' + (c+1) + ';grid-row:' + (r+1) + '" title="' + escapeHtml(STATE_NAMES[code]) + ': ' + p.found + '/' + p.total + '">' + code + '</button>';
+  }).join("");
+  $usMap.innerHTML = html;
+  $usMap.querySelectorAll(".us-tile").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const code = btn.dataset.state;
+      $state.value = ($state.value === code) ? "" : code;
+      applyFilters();
+      renderMap();
+    });
+  });
+}
+
 function showTab(name){
   const isPlates = name === "plates";
+  const isTrips = name === "trips";
+  const isStats = name === "stats";
   $tabPlates.classList.toggle("active", isPlates);
-  $tabTrips.classList.toggle("active", !isPlates);
+  $tabTrips.classList.toggle("active", isTrips);
+  $tabStats.classList.toggle("active", isStats);
   $viewPlates.hidden = !isPlates;
-  $viewTrips.hidden = isPlates;
+  $viewTrips.hidden = !isTrips;
+  $viewStats.hidden = !isStats;
   $platesControls.style.display = isPlates ? "" : "none";
   $colorRow.style.display = isPlates ? "" : "none";
-  if(!isPlates) renderTripsTab();
+  if(isTrips) renderTripsTab();
+  if(isStats) renderStatsTab();
 }
 
 function renderTripBanner(){
@@ -749,6 +883,10 @@ function fmtRange(a, b){
   if(!db) return da;
   if(da === db) return da;
   return da + " → " + db;
+}
+function tripDays(t){
+  const a = new Date(t.started), b = new Date(t.ended || Date.now());
+  return Math.max(1, Math.round((b - a) / 86400000));
 }
 
 function renderTripsTab(){
@@ -874,6 +1012,7 @@ function startTrip(name, notes){
   saveTrips();
   renderTripBanner();
   renderTripsTab();
+  renderMap();
 }
 function endTrip(){
   if(!activeTrip) return;
@@ -886,13 +1025,13 @@ function endTrip(){
   };
   tripLog.unshift(completed);
   activeTrip = null;
-  saveTrips(); updateTripsPill(); renderTripBanner(); renderTripsTab();
+  saveTrips(); updateTripsPill(); renderTripBanner(); renderTripsTab(); renderMap();
 }
 function cancelTrip(){
   if(!activeTrip) return;
   if(!confirm("Discard the current trip? Your lifetime spotted list will keep all the plates you tapped, but this trip won't be saved to the log.")) return;
   activeTrip = null;
-  saveTrips(); renderTripBanner(); renderTripsTab();
+  saveTrips(); renderTripBanner(); renderTripsTab(); renderMap();
 }
 function updateTripsPill(){
   const n = tripLog.length;
@@ -900,18 +1039,130 @@ function updateTripsPill(){
   $tripsPill.textContent = n;
 }
 
+function renderStatsTab(){
+  const total = PLATES.length || 1;
+  const spotted = found.size;
+  const pct = (spotted/total*100);
+  const sp = lifetimeStatesProgress();
+  const by = sp.byState;
+
+  const topStates = Object.entries(by)
+    .filter(([_, v]) => v.found > 0)
+    .sort((a,b) => b[1].found - a[1].found || (b[1].found/b[1].total) - (a[1].found/a[1].total))
+    .slice(0, 5);
+
+  let bestTrip = null;
+  let longestTrip = null;
+  let totalStatesAcross = 0;
+  for(const t of tripLog){
+    const sc = (t.states || []).length;
+    if(!bestTrip || sc > (bestTrip.states||[]).length) bestTrip = t;
+    const days = tripDays(t);
+    if(!longestTrip || days > tripDays(longestTrip)) longestTrip = t;
+    totalStatesAcross += sc;
+  }
+  const avgStates = tripLog.length ? (totalStatesAcross / tripLog.length).toFixed(1) : "0";
+
+  const colorBreakdown = {};
+  for(const id of found){
+    const p = PLATES[id]; if(!p || !p.color) continue;
+    colorBreakdown[p.color] = (colorBreakdown[p.color] || 0) + 1;
+  }
+  const totalColored = Object.values(colorBreakdown).reduce((a,b)=>a+b, 0);
+
+  const firstSpot = getFirstSpotDate();
+  const daysTracking = firstSpot ? Math.max(1, Math.round((Date.now() - new Date(firstSpot).getTime()) / 86400000)) : 0;
+
+  let html = "";
+  html += '<div class="stats-hero">' +
+    '<div class="num">' + spotted.toLocaleString() + '</div>' +
+    '<div class="sub">plates spotted of ' + total.toLocaleString() + ' (' + pct.toFixed(1) + '%)</div>' +
+    '<div class="barwrap"><div style="width:' + pct.toFixed(2) + '%"></div></div>' +
+    '</div>';
+
+  html += '<div class="stats-grid">' +
+    '<div class="stat"><strong>' + sp.any + '</strong>/51<small>states started</small></div>' +
+    '<div class="stat"><strong>' + sp.full + '</strong>/51<small>states completed</small></div>' +
+    '<div class="stat"><strong>' + tripLog.length + '</strong><small>trips logged</small></div>' +
+    '<div class="stat"><strong>' + (daysTracking || "—") + '</strong><small>' + (daysTracking ? "days tracking" : "spot a plate") + '</small></div>' +
+    '</div>';
+
+  if(activeTrip){
+    const ts = tripStateSet(activeTrip).size;
+    html += '<div class="stats-section">' +
+      '<h3>Active trip</h3>' +
+      '<div class="record"><strong>' + escapeHtml(activeTrip.name) + '</strong> &middot; ' + ts + '/51 states &middot; day ' + tripDays(activeTrip) + '</div>' +
+      '</div>';
+  }
+
+  if(tripLog.length > 0){
+    html += '<div class="stats-section">' +
+      '<h3>Trip records</h3>' +
+      '<div class="record">Best: <strong>' + escapeHtml(bestTrip.name) + '</strong> &middot; ' + (bestTrip.states||[]).length + '/51 states</div>' +
+      '<div class="record">Longest: <strong>' + escapeHtml(longestTrip.name) + '</strong> &middot; ' + tripDays(longestTrip) + ' day' + (tripDays(longestTrip)===1?'':'s') + '</div>' +
+      '<div class="record">Avg per trip: <strong>' + avgStates + '</strong> states</div>' +
+      '</div>';
+  }
+
+  if(topStates.length > 0){
+    const topN = topStates[0][1].found;
+    html += '<div class="stats-section">' +
+      '<h3>Top spotted states</h3>' +
+      topStates.map(([code, v]) => {
+        const w = (v.found / Math.max(topN, 1) * 100).toFixed(0);
+        return '<div class="bar-row">' +
+          '<span class="bar-label">' + code + ' &middot; ' + escapeHtml(STATE_NAMES[code]||"") + '</span>' +
+          '<span class="bar-fill"><span style="width:' + w + '%"></span></span>' +
+          '<span class="bar-val">' + v.found + '/' + v.total + '</span>' +
+        '</div>';
+      }).join("") +
+      '</div>';
+  }
+
+  if(totalColored > 0){
+    html += '<div class="stats-section">' +
+      '<h3>Spotted by color</h3>' +
+      '<div class="color-bars">' +
+      COLOR_ORDER.filter(c => colorBreakdown[c]).map(c => {
+        const n = colorBreakdown[c];
+        const w = (n/totalColored*100).toFixed(1);
+        return '<div class="cbar">' +
+          '<span class="cdot-mini" style="background:' + COLOR_HEX[c] + '"></span>' +
+          '<span class="cbar-label">' + COLOR_LABELS[c] + '</span>' +
+          '<span class="cbar-fill" style="width:' + w + '%; background:' + COLOR_HEX[c] + '"></span>' +
+          '<span class="cbar-val">' + n + '</span>' +
+        '</div>';
+      }).join("") +
+      '</div></div>';
+  }
+
+  if(spotted === 0){
+    html += '<div class="stats-empty">Spot your first plate to start tracking stats.</div>';
+  }
+
+  $viewStats.innerHTML = html;
+}
+
+function clearAllFilters(){
+  $q.value = "";
+  $state.value = "";
+  $show.value = "all"; showMode = "all";
+  $sort.value = "default";
+  activeColorFilter = "";
+  updateColorActiveStates();
+  applyFilters();
+  renderMap();
+}
+
 let qDeb;
 $q.addEventListener("input", () => { clearTimeout(qDeb); qDeb = setTimeout(applyFilters, 120); });
-$state.addEventListener("change", applyFilters);
+$state.addEventListener("change", () => { applyFilters(); renderMap(); });
+$show.addEventListener("change", () => { showMode = $show.value; applyFilters(); });
 $sort.addEventListener("change", applyFilters);
-$hide.addEventListener("click", () => {
-  hideSpotted = !hideSpotted;
-  $hide.classList.toggle("active", hideSpotted);
-  $hide.textContent = hideSpotted ? "Show spotted" : "Hide spotted";
-  applyFilters();
-});
+$clear.addEventListener("click", clearAllFilters);
 $tabPlates.addEventListener("click", () => showTab("plates"));
 $tabTrips.addEventListener("click", () => showTab("trips"));
+$tabStats.addEventListener("click", () => showTab("stats"));
 $tripBannerEnd.addEventListener("click", () => { showTab("trips"); });
 
 window.addEventListener("beforeunload", persistColors);
